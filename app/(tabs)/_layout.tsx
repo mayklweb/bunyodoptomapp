@@ -11,8 +11,10 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { StyleSheet, Text, View } from "react-native";
 import { useEffect, useState } from "react";
 import NetInfo from "@react-native-community/netinfo";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function TabsLayout() {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
@@ -23,13 +25,15 @@ export default function TabsLayout() {
     return () => unsubscribe();
   }, []);
 
+  if (!isHydrated) {
+    return null; // ✅ auth holati aniq bo'lguncha hech narsa render qilinmaydi
+  }
+
   if (!isConnected) {
     return (
       <View style={styles.offlineContainer}>
         <Text style={styles.title}>Nimadir buzilib qoldi</Text>
-        <Text style={styles.subtitle}>
-        internetni tekshiring va sahifani
-        </Text>
+        <Text style={styles.subtitle}>internetni tekshiring va sahifani</Text>
       </View>
     );
   }
@@ -38,7 +42,6 @@ export default function TabsLayout() {
     <QueryProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <BottomSheetModalProvider>
-
           <Tabs
             screenOptions={{
               headerShown: false,
@@ -70,45 +73,45 @@ export default function TabsLayout() {
               },
             }}
           >
-              <Tabs.Screen
-                name="home"
-                options={{
-                  title: "Asosiy",
-                  tabBarIcon: ({ color, size }) => (
-                    <HomeIcon color={color} size={size} />
-                  ),
-                }}
-              />
+            <Tabs.Screen
+              name="home"
+              options={{
+                title: "Asosiy",
+                tabBarIcon: ({ color, size }) => (
+                  <HomeIcon color={color} size={size} />
+                ),
+              }}
+            />
 
-              <Tabs.Screen
-                name="catalog"
-                options={{
-                  title: "Katalog",
-                  tabBarIcon: ({ color, size }) => (
-                    <ProductsIcon color={color} size={size} />
-                  ),
-                }}
-              />
+            <Tabs.Screen
+              name="catalog"
+              options={{
+                title: "Katalog",
+                tabBarIcon: ({ color, size }) => (
+                  <ProductsIcon color={color} size={size} />
+                ),
+              }}
+            />
 
-              <Tabs.Screen
-                name="cart"
-                options={{
-                  title: "Savat",
-                  tabBarIcon: ({ color, size }) => (
-                    <CartIcon color={color} size={size} />
-                  ),
-                }}
-              />
+            <Tabs.Screen
+              name="cart"
+              options={{
+                title: "Savat",
+                tabBarIcon: ({ color, size }) => (
+                  <CartIcon color={color} size={size} />
+                ),
+              }}
+            />
 
-              <Tabs.Screen
-                name="profile"
-                options={{
-                  title: "Profil",
-                  tabBarIcon: ({ color, size }) => (
-                    <UserIcon color={color} size={size} />
-                  ),
-                }}
-              />
+            <Tabs.Screen
+              name="profile"
+              options={{
+                title: "Profil",
+                tabBarIcon: ({ color, size }) => (
+                  <UserIcon color={color} size={size} />
+                ),
+              }}
+            />
           </Tabs>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>

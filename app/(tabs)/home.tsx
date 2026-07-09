@@ -34,6 +34,7 @@ import Animated, {
 import Carousel from "react-native-reanimated-carousel";
 
 const { width } = Dimensions.get("window");
+const { height: screenHeight } = Dimensions.get("window");
 
 const GAP = 10;
 const ITEM_SIZE = ((width < 720 ? width : 720) - GAP * 5 - 20) / 4;
@@ -320,9 +321,9 @@ function ListHeader({ categories, router }: ListHeaderProps) {
 }
 
 // ── Main screen ────────────────────────────────────────────
+// ── Main screen ────────────────────────────────────────────
 export default function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
-  const onEndReachedCalledDuringMomentum = useRef(true);
   const [selectedProduct, setSelectedProduct] = useState<ProductsType | null>(
     null,
   );
@@ -335,14 +336,14 @@ export default function HomeScreen() {
     isFetchingNextPage,
     isLoading: isProductsLoading,
     isError: isProductsError,
-    refetch: refetchProducts, // ✅ qo'shildi
+    refetch: refetchProducts,
   } = useAllProducts();
 
   const {
     data: categories,
     isLoading: isCategoriesLoading,
     isError: isCategoriesError,
-    refetch: refetchCategories, // ✅ qo'shildi
+    refetch: refetchCategories,
   } = useCategories();
 
   const openSheet = useCallback((item: ProductsType): void => {
@@ -376,13 +377,11 @@ export default function HomeScreen() {
         <View style={errorStyles.iconWrap}>
           <Text style={errorStyles.iconText}>⚠️</Text>
         </View>
-
         <Text style={errorStyles.title}>Xatolik yuz berdi</Text>
         <Text style={errorStyles.subtitle}>
           Ma'lumotlarni yuklab bo'lmadi. Internet aloqangizni tekshirib, qayta
           urinib ko'ring.
         </Text>
-
         <TouchableOpacity
           style={errorStyles.retryBtn}
           activeOpacity={0.8}
@@ -396,6 +395,7 @@ export default function HomeScreen() {
       </View>
     );
   }
+
   const allProducts = data?.pages.flatMap((page: any) => page.data ?? []) ?? [];
 
   const products = allProducts
@@ -422,23 +422,21 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <ProductCard item={item} openSheet={openSheet} />
         )}
-        onEndReached={() => {
-          if (
-            hasNextPage &&
-            !isFetchingNextPage &&
-            !onEndReachedCalledDuringMomentum.current
-          ) {
-            onEndReachedCalledDuringMomentum.current = true;
-            fetchNextPage();
-          }
-        }}
-        onMomentumScrollBegin={() => {
-          onEndReachedCalledDuringMomentum.current = false;
-        }}
-        onEndReachedThreshold={0.5}
+        // ✅ avtomatik onEndReached/onContentSizeChange olib tashlandi
         ListFooterComponent={
-          isFetchingNextPage ? (
-            <ActivityIndicator style={{ marginVertical: 16 }} />
+          hasNextPage ? (
+            <TouchableOpacity
+              onPress={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              style={loadMoreBtn.button}
+              activeOpacity={0.8}
+            >
+              {isFetchingNextPage ? (
+                <ActivityIndicator size="small" color="#0040B1" />
+              ) : (
+                <Text style={loadMoreBtn.text}>Yana ko'rsatish</Text>
+              )}
+            </TouchableOpacity>
           ) : null
         }
       />
@@ -464,7 +462,13 @@ export default function HomeScreen() {
 // ── Styles ─────────────────────────────────────────────────
 
 const section = StyleSheet.create({
-  title: { fontSize: 24, fontWeight: "600", marginBottom: 12, marginTop: 24, lineHeight: 26 },
+  title: {
+    fontSize: 24,
+    fontWeight: "600",
+    marginBottom: 12,
+    marginTop: 24,
+    lineHeight: 26,
+  },
 });
 
 const styles = StyleSheet.create({
@@ -535,4 +539,16 @@ const errorStyles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   retryText: { color: "#fff", fontSize: 15, fontWeight: "600" },
+});
+
+const loadMoreBtn = StyleSheet.create({
+  button: {
+    marginTop: 16,
+    marginHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    backgroundColor: "#0040B1",
+  },
+  text: { color: "#FFF", fontSize: 15, fontWeight: "600" },
 });

@@ -37,13 +37,12 @@ import { useProfile } from "@/hooks/useProfile";
 import { formatPhone } from "@/utils/helpres";
 
 export default function ProfileScreen() {
-  const token = useAuthStore((state) => state.token);
+  const { token, isHydrated } = useAuthStore();
   const { logout } = useLogout();
   const { data: user } = useProfile();
 
   const [activeSheet, setActiveSheet] = useState<SheetKey>(null);
 
-  
   const socialLinks = [
     {
       href: "https://www.instagram.com/bunyodoptom",
@@ -61,11 +60,15 @@ export default function ProfileScreen() {
       icon: <YouTubeIcon size={20} color="#fff" />,
     },
   ];
-  
+
+  if (!isHydrated) {
+    return null; // yoki <ActivityIndicator /> qo'yish mumkin
+  }
+
   if (!token) {
     return <Redirect href="/(auth)/login" />;
   }
-  
+
   return (
     <View style={{ flex: 1 }}>
       <ProfileHeader />
