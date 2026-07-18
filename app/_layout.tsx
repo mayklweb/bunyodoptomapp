@@ -14,7 +14,7 @@ export default function Layout() {
       <BottomSheetModalProvider>
         <QueryProvider>
           <ScreenWrapper>
-            <Stack screenOptions={{ headerShown: false }}></Stack>
+            <Stack screenOptions={{ headerShown: false, animation: "none"}}/>
           </ScreenWrapper>
           <Toast />
         </QueryProvider>

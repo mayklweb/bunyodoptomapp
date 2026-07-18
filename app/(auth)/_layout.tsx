@@ -21,5 +21,5 @@ export default function AuthLayout() {
     return <Redirect href="/(tabs)/profile" />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <Stack screenOptions={{ headerShown: false, animation: "none" }} />;
 }
