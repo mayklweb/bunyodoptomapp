@@ -1,10 +1,19 @@
+// app/(auth)/_layout.tsx
+import { useEffect, useState } from "react";
 import { Redirect, Stack } from "expo-router";
 import { useAuthStore } from "@/store/auth.store";
 
 export default function AuthLayout() {
   const { token, isHydrated } = useAuthStore();
+  const [ready, setReady] = useState(false);
 
-  if (!isHydrated) {
+  useEffect(() => {
+    // Fabric'ga joriy mount tsiklini yakunlash uchun bitta freym beramiz
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, [token]);
+
+  if (!isHydrated || !ready) {
     return null;
   }
 
@@ -12,5 +21,5 @@ export default function AuthLayout() {
     return <Redirect href="/(tabs)/profile" />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }}></Stack>;
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

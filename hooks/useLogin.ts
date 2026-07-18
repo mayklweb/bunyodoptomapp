@@ -31,13 +31,9 @@ export function useLogin() {
     mutationFn: ({ phone, password }: { phone: string; password: string }) =>
       loginRequest(phone, password),
     onSuccess: (data) => {
-      // 🔥 ENG MUHIM QATOR — eski keshni butunlay tozalash
       queryClient.clear();
-
-      // setAuth ichida cart ham avtomatik tozalanadi (auth.store.ts)
-      setAuth({
-        token: data.token,
-        user: data.user,
+      requestAnimationFrame(() => {
+        setAuth({ token: data.token, user: data.user });
       });
     },
   });

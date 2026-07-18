@@ -1,3 +1,6 @@
+import { enableScreens } from "react-native-screens";
+enableScreens(false);
+
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import QueryProvider from "@/providers/QueryProvider";
 import { Stack } from "expo-router";

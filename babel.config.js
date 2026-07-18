@@ -4,18 +4,14 @@ module.exports = function (api) {
     presets: [
       ['babel-preset-expo', {
         jsxImportSource: 'react',
+        // import.meta ishlatadigan kutubxonalar uchun Expo'ning
+        // rasmiy, xavfsiz yechimi - faqat import.meta'ni almashtiradi,
+        // new.target kabi boshqa JS xususiyatlariga tegmaydi
+        unstable_transformImportMeta: true,
       }]
     ],
-    plugins: [
-      function () {
-        return {
-          visitor: {
-            MetaProperty(path) {
-              path.replaceWithSourceString('process');
-            }
-          }
-        };
-      }
-    ]
+    // Eslatma: react-native-reanimated / react-native-worklets uchun
+    // plagin qo'lda qo'shilmaydi - Expo SDK 54'da babel-preset-expo
+    // buni avtomatik boshqaradi.
   };
 };

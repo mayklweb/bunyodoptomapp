@@ -1,4 +1,10 @@
-import { HeartIcon, LeftArrowIcon, LeftIcon } from "@/components/icons";
+import {
+  HeartIcon,
+  LeftArrowIcon,
+  LeftIcon,
+  MinusIcon,
+  PlusIcon,
+} from "@/components/icons";
 import {
   View,
   Text,
@@ -10,30 +16,64 @@ import {
   FlatList,
   Dimensions,
 } from "react-native";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { useProduct } from "@/hooks/useProducts";
-import { data } from "@/utils/constants";
+import { useProduct, useAllProducts } from "@/hooks/useProducts";
 import { useCartStore } from "@/store/cart.store";
 
 const { width } = Dimensions.get("window");
 
 export default function ProductPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: item, isLoading, isError, error } = useProduct(id);
+  const { data: product, isLoading, isError, error } = useProduct(id);
 
-  const {addToCart} = useCartStore()
+  const { addToCart, inc, dec, getQuantity } = useCartStore();
 
-  const product = data.find((p: any) => p.id === Number(id));
+  // Barcha mahsulotlarni olib, shu kategoriyadagilarini ajratib olamiz
+  const { data: allProductsData } = useAllProducts();
 
+  const similarProducts = useMemo(() => {
+    if (!product) return [];
+    const flat =
+      allProductsData?.pages?.flatMap(
+        (page: any) => page.items ?? page.data ?? page,
+      ) ?? [];
+    return flat.filter((p: any) => p.id !== product.id).slice(0, 20);
+  }, [allProductsData, product]);
 
   const [isFavorited, setIsFavorited] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
+  const [favoritedIds, setFavoritedIds] = useState<Set<number>>(new Set());
+  const [addedCartIds, setAddedCartIds] = useState<Set<number>>(new Set());
+
+  const toggleSimilarFavorite = (productId: number) => {
+    setFavoritedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(productId)) {
+        next.delete(productId);
+      } else {
+        next.add(productId);
+      }
+      return next;
+    });
+  };
+
+  const handleSimilarAddToCart = (item: any) => {
+    addToCart(item);
+    setAddedCartIds((prev) => new Set(prev).add(item.id));
+    setTimeout(() => {
+      setAddedCartIds((prev) => {
+        const next = new Set(prev);
+        next.delete(item.id);
+        return next;
+      });
+    }, 1500);
+  };
 
   const handleAddToCart = () => {
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+    if (!product) return;
+    addToCart(product);
   };
 
   if (isLoading) {
@@ -106,9 +146,9 @@ export default function ProductPage() {
   const images =
     product.images && product.images.length > 0 ? product.images : [];
 
-    
   const price = product.piece_price ?? product.kg_price ?? product.price;
   const inStock = product.stock_qty > 0;
+  const cartQuantity = getQuantity(product.id);
 
   return (
     <>
@@ -122,13 +162,17 @@ export default function ProductPage() {
           <View
             style={{
               width: "100%",
-              aspectRatio: 4/3,
+              aspectRatio: 4 / 3,
               backgroundColor: "#E8EDF5",
             }}
           >
             {images.length > 0 ? (
               <Image
-                source={{ uri: "https://api.bunyodoptom.uz" + product?.images?.[0]?.url, }}
+                source={{
+                  uri:
+                    "https://api.bunyodoptom.uz" +
+                    (images[activeImage]?.url ?? images[0]?.url),
+                }}
                 style={{ width: "100%", height: "100%" }}
                 resizeMode="cover"
               />
@@ -199,40 +243,10 @@ export default function ProductPage() {
                 <HeartIcon size={20} color={isFavorited ? "#ef4444" : "#111"} />
               </TouchableOpacity>
             </View>
-
-            {/* Stock badge */}
-            {/* <View
-              style={{
-                position: "absolute",
-                bottom: 16,
-                left: 16,
-                backgroundColor: inStock ? "#0040B1" : "#9ca3af",
-                borderRadius: 100,
-                paddingHorizontal: 14,
-                paddingVertical: 7,
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <View
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: 3,
-                  backgroundColor: "rgba(255,255,255,0.6)",
-                }}
-              />
-              <Text style={{ color: "#fff", fontSize: 12, fontWeight: "600" }}>
-                {inStock
-                  ? `${product.stock_qty.toLocaleString()} dona mavjud`
-                  : "Mavjud emas"}
-              </Text>
-            </View> */}
           </View>
 
           {/* THUMBNAILS */}
-          {/* {images.length > 1 && (
+          {images.length > 1 && (
             <View
               style={{
                 backgroundColor: "#fff",
@@ -262,7 +276,7 @@ export default function ProductPage() {
                     }}
                   >
                     <Image
-                      source={{ uri: "https://api.bunyodoptom.uz" + item?.images?.[0]?.url, }}
+                      source={{ uri: "https://api.bunyodoptom.uz" + item?.url }}
                       style={{ width: "100%", height: "100%" }}
                       resizeMode="cover"
                     />
@@ -270,7 +284,7 @@ export default function ProductPage() {
                 )}
               />
             </View>
-          )} */}
+          )}
 
           {/* CONTENT */}
           <View style={{ padding: 20, gap: 20 }}>
@@ -410,6 +424,166 @@ export default function ProductPage() {
                 </Text>
               </View>
             )}
+
+            {/* O'XSHASH MAHSULOTLAR */}
+            {similarProducts.length > 0 && (
+              <View style={{ gap: 12 }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "700",
+                    color: "#111",
+                  }}
+                >
+                  O'xshash mahsulotlar
+                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                    justifyContent: "space-between",
+                    gap: 12,
+                  }}
+                >
+                  {similarProducts.map((item: any) => {
+                    const isFav = favoritedIds.has(item.id);
+                    const justAdded = addedCartIds.has(item.id);
+                    const itemPrice =
+                      item.piece_price ?? item.kg_price ?? item.price;
+
+                    return (
+                      <View
+                        key={item.id}
+                        style={{
+                          width: "48%",
+                          backgroundColor: "#fff",
+                          borderRadius: 16,
+                          overflow: "hidden",
+                          shadowColor: "#000",
+                          shadowOffset: { width: 0, height: 1 },
+                          shadowOpacity: 0.05,
+                          shadowRadius: 5,
+                          elevation: 2,
+                        }}
+                      >
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          onPress={() => router.push(`/product/${item.id}`)}
+                        >
+                          <View
+                            style={{
+                              width: "100%",
+                              height: 120,
+                              backgroundColor: "#E8EDF5",
+                            }}
+                          >
+                            {item.images?.[0]?.url ? (
+                              <Image
+                                source={{
+                                  uri:
+                                    "https://api.bunyodoptom.uz" +
+                                    item.images[0].url,
+                                }}
+                                style={{ width: "100%", height: "100%" }}
+                                resizeMode="cover"
+                              />
+                            ) : (
+                              <View
+                                style={{
+                                  flex: 1,
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Text style={{ fontSize: 28 }}>📦</Text>
+                              </View>
+                            )}
+                          </View>
+
+                          <View
+                            style={{ padding: 10, paddingBottom: 0, gap: 6 }}
+                          >
+                            <Text
+                              numberOfLines={1}
+                              style={{
+                                fontSize: 13,
+                                fontWeight: "600",
+                                color: "#111",
+                              }}
+                            >
+                              {item.name}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 13,
+                                fontWeight: "700",
+                                color: "#0040B1",
+                              }}
+                            >
+                              {itemPrice?.toLocaleString()} so'm
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+
+                        {/* Favorite tugmasi - endi mustaqil, kartadan tashqarida */}
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          onPress={() => toggleSimilarFavorite(item.id)}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                          style={{
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                            width: 32,
+                            height: 32,
+                            borderRadius: 16,
+                            backgroundColor: "rgba(255,255,255,0.95)",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            shadowColor: "#000",
+                            shadowOffset: { width: 0, height: 1 },
+                            shadowOpacity: 0.15,
+                            shadowRadius: 4,
+                            elevation: 3,
+                          }}
+                        >
+                          <HeartIcon
+                            size={16}
+                            color={isFav ? "#ef4444" : "#111"}
+                          />
+                        </TouchableOpacity>
+
+                        {/* Savatga qo'shish tugmasi - endi mustaqil */}
+                        <TouchableOpacity
+                          activeOpacity={0.85}
+                          onPress={() => handleSimilarAddToCart(item)}
+                          style={{
+                            height: 34,
+                            borderRadius: 10,
+                            backgroundColor: justAdded ? "#22c55e" : "#0040B1",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            marginHorizontal: 10,
+                            marginTop: 6,
+                            marginBottom: 10,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "#fff",
+                              fontSize: 12,
+                              fontWeight: "700",
+                            }}
+                          >
+                            {justAdded ? "✓ Qo'shildi" : "Savatga qo'shish"}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
           </View>
         </ScrollView>
 
@@ -422,45 +596,99 @@ export default function ProductPage() {
             right: 0,
             backgroundColor: "#FFF",
             paddingHorizontal: 20,
+            paddingVertical: 12,
             borderTopWidth: 1,
             borderTopColor: "#f0f0f0",
           }}
         >
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={handleAddToCart}
-            disabled={!inStock}
-            style={{
-              height: 56,
-              borderRadius: 18,
-              backgroundColor: !inStock
-                ? "#d1d5db"
-                : addedToCart
-                  ? "#22c55e"
-                  : "#0040B1",
-              justifyContent: "center",
-              alignItems: "center",
-              shadowColor: "#0040B1",
-              shadowOffset: { width: 0, height: 6 },
-              shadowOpacity: inStock ? 0.3 : 0,
-              shadowRadius: 16,
-              elevation: 8,
-            }}
-          >
-            <Text
+          {!inStock ? (
+            <View
               style={{
-                color: "#fff",
-                fontSize: 16,
-                fontWeight: "700",
+                height: 56,
+                borderRadius: 18,
+                backgroundColor: "#d1d5db",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
-              {!inStock
-                ? "Mavjud emas"
-                : addedToCart
-                  ? "✓ Savatga qo'shildi"
-                  : "Savatga qo'shish"}
-            </Text>
-          </TouchableOpacity>
+              <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>
+                Mavjud emas
+              </Text>
+            </View>
+          ) : cartQuantity > 0 ? (
+            // Savatga qo'shilgan bo'lsa - miqdorni boshqarish (+/-)
+            <View
+              style={{
+                height: 56,
+                borderRadius: 18,
+                backgroundColor: "#F5F5F5",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingHorizontal: 8,
+              }}
+            >
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => dec(product.id)}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  backgroundColor: "#fff",
+
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <MinusIcon />
+              </TouchableOpacity>
+
+              <Text style={{ color: "#000", fontSize: 18, fontWeight: "700" }}>
+                {cartQuantity} dona
+              </Text>
+
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => inc(product.id)}
+                disabled={cartQuantity >= product.stock_qty}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  backgroundColor: "#fff",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <PlusIcon />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            // Hali savatga qo'shilmagan bo'lsa - oddiy tugma
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleAddToCart}
+              style={{
+                height: 56,
+                borderRadius: 18,
+                backgroundColor: "#0040B1",
+                justifyContent: "center",
+                alignItems: "center",
+                shadowColor: "#0040B1",
+                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: 0.3,
+                shadowRadius: 16,
+                elevation: 8,
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>
+                Savatga qo'shish
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </>

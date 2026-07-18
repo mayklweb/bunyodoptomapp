@@ -77,7 +77,8 @@ export default function LoginScreen() {
               <MaskInput
                 value={phone}
                 onChangeText={(masked, unmasked) => {
-                  setPhone(masked); // UI uchun
+                  setPhone(masked);
+                  // setRawPhone(unmasked);
                 }}
                 keyboardType="phone-pad"
                 mask={[

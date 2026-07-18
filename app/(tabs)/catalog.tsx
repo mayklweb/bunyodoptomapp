@@ -4,21 +4,40 @@ import Section from "@/components/layout/Section";
 import { Dimensions, StyleSheet } from "react-native";
 import { Header } from "@/components/Header";
 import { useCategories } from "@/hooks/useCategories";
+import { useAllProducts } from "@/hooks/useProducts";
 
 const { width } = Dimensions.get("window");
 const CARD_SIZE = ((width < 720 ? width : 720) - 20 * 2 - 20) / 2;
 
-
 export default function CatalogScreen() {
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isProductsLoading,
+    isError: isProductsError,
+    refetch: refetchProducts,
+  } = useAllProducts();
+
   const {
     data: categories,
     isLoading: isCategoriesLoading,
     isError: isCategoriesError,
   } = useCategories();
+
+  const allProducts = data?.pages.flatMap((page: any) => page.data ?? []) ?? [];
+
+  const products = allProducts
+    .filter((item: any) => item.images && item.images.length > 0)
+    .filter(
+      (item: any, index: number, self: any[]) =>
+        index === self.findIndex((p) => p.id === item.id),
+    );
   return (
     <View style={{ flex: 1, backgroundColor: "#F8F7F4" }}>
       {/* Header */}
-      <Header />
+      <Header products={products} />
 
       <ScrollView
         contentContainerStyle={{ paddingBottom: 40 }}

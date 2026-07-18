@@ -407,7 +407,7 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header />
+      <Header products={products} />
 
       <FlatList
         data={products}
