@@ -62,9 +62,8 @@ export default function ProfileScreen() {
   ];
 
   if (!isHydrated) {
-    return null; // yoki <ActivityIndicator /> qo'yish mumkin
+    return null;
   }
-
   if (!token) {
     return <Redirect href="/(auth)/login" />;
   }
