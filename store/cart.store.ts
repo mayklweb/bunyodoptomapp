@@ -1,31 +1,33 @@
-import { storage } from "@/lib/secure-storage";
-import { ProductsType } from "@/types/types";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-interface CartItem extends ProductsType {
+import { ProductsType } from "@/types";
+import { storage } from "@/lib/secure-storage";
+
+export interface CartItem extends ProductsType {
   count: number;
 }
 
+type CartId = string | number;
+
 type CartState = {
   cart: CartItem[];
-  selectedIds: (string | number)[];
+  selectedIds: CartId[];
 
-  getQuantity: (id: string | number) => number;
+  getQuantity: (id: CartId) => number;
 
   addToCart: (item: Omit<CartItem, "count">) => void;
 
-  inc: (id: string | number) => void;
-  dec: (id: string | number) => void;
+  inc: (id: CartId) => void;
+  dec: (id: CartId) => void;
+  changeQty: (id: CartId, delta: number) => void;
 
-  remove: (id: string | number) => void;
+  remove: (id: CartId) => void;
   clearCart: () => void;
-
-  changeQty: (id: string | number, delta: number) => void;
 
   allSelected: () => boolean;
   toggleAll: () => void;
-  toggleItem: (id: string | number) => void;
+  toggleItem: (id: CartId) => void;
 
   selectedItems: () => CartItem[];
 
@@ -39,110 +41,246 @@ export const useCartStore = create<CartState>()(
       cart: [],
       selectedIds: [],
 
+      // ─────────────────────────────────────────────
+      // GET QUANTITY
+      // ─────────────────────────────────────────────
+
       getQuantity: (id) => {
-        const item = get().cart.find((p) => p.id === id);
-        return item ? item.count : 0;
+        const item = get().cart.find((item) => item.id === id);
+        return item?.count ?? 0;
       },
 
-      addToCart: (item) => {
-        const existing = get().cart.find((p) => p.id === item.id);
+      // ─────────────────────────────────────────────
+      // ADD TO CART
+      // ─────────────────────────────────────────────
 
-        if (existing) {
-          if (existing.count < item.stock_qty) {
-            set((state) => ({
-              cart: state.cart.map((p) =>
-                p.id === item.id ? { ...p, count: p.count + 1 } : p,
+      addToCart: (item) => {
+        set((state) => {
+          const existing = state.cart.find(
+            (cartItem) => cartItem.id === item.id,
+          );
+
+          // Product already exists
+          if (existing) {
+            if (existing.count >= Number(item.stock_qty)) {
+              return state;
+            }
+
+            return {
+              cart: state.cart.map((cartItem) =>
+                cartItem.id === item.id
+                  ? {
+                      ...cartItem,
+                      count: cartItem.count + 1,
+                    }
+                  : cartItem,
               ),
-            }));
+            };
           }
-        } else {
-          set((state) => ({
+
+          // New product
+          return {
             cart: [
               ...state.cart,
               {
                 ...item,
-                count: 1,
                 price: Number(item.price),
+                stock_qty: Number(item.stock_qty),
+                count: 1,
               },
             ],
-            selectedIds: [...state.selectedIds, item.id],
-          }));
-        }
+
+            // New products are selected automatically
+            selectedIds: state.selectedIds.includes(item.id)
+              ? state.selectedIds
+              : [...state.selectedIds, item.id],
+          };
+        });
       },
+
+      // ─────────────────────────────────────────────
+      // INCREMENT
+      // ─────────────────────────────────────────────
 
       inc: (id) => {
-        const item = get().cart.find((p) => p.id === id);
+        set((state) => ({
+          cart: state.cart.map((item) => {
+            if (item.id !== id) {
+              return item;
+            }
 
-        if (item && item.count < item.stock_qty) {
-          set((state) => ({
-            cart: state.cart.map((p) =>
-              p.id === id ? { ...p, count: p.count + 1 } : p,
-            ),
-          }));
-        }
+            const stock = Number(item.stock_qty);
+
+            if (item.count >= stock) {
+              return item;
+            }
+
+            return {
+              ...item,
+              count: item.count + 1,
+            };
+          }),
+        }));
       },
+
+      // ─────────────────────────────────────────────
+      // DECREMENT
+      // ─────────────────────────────────────────────
 
       dec: (id) => {
         set((state) => ({
-          cart: state.cart.map((p) =>
-            p.id === id && p.count > 1 ? { ...p, count: p.count - 1 } : p,
+          cart: state.cart.map((item) => {
+            if (item.id !== id) {
+              return item;
+            }
+
+            // Minimum quantity = 1
+            if (item.count <= 1) {
+              return item;
+            }
+
+            return {
+              ...item,
+              count: item.count - 1,
+            };
+          }),
+        }));
+      },
+
+      // ─────────────────────────────────────────────
+      // CHANGE QUANTITY
+      // ─────────────────────────────────────────────
+
+      changeQty: (id, delta) => {
+        if (delta > 0) {
+          get().inc(id);
+          return;
+        }
+
+        if (delta < 0) {
+          get().dec(id);
+        }
+      },
+
+      // ─────────────────────────────────────────────
+      // REMOVE
+      // ─────────────────────────────────────────────
+
+      remove: (id) => {
+        set((state) => ({
+          cart: state.cart.filter((item) => item.id !== id),
+
+          selectedIds: state.selectedIds.filter(
+            (selectedId) => selectedId !== id,
           ),
         }));
       },
 
-      remove: (id) => {
-        set((state) => ({
-          cart: state.cart.filter((p) => p.id !== id),
-          selectedIds: state.selectedIds.filter((i) => i !== id),
-        }));
+      // ─────────────────────────────────────────────
+      // CLEAR
+      // ─────────────────────────────────────────────
+
+      clearCart: () => {
+        set({
+          cart: [],
+          selectedIds: [],
+        });
       },
 
-      clearCart: () => set({ cart: [], selectedIds: [] }),
-
-      changeQty: (id, delta) => {
-        if (delta > 0) get().inc(id);
-        else get().dec(id);
-      },
+      // ─────────────────────────────────────────────
+      // SELECTION
+      // ─────────────────────────────────────────────
 
       allSelected: () => {
         const { cart, selectedIds } = get();
-        return cart.length > 0 && cart.every((i) => selectedIds.includes(i.id));
+
+        if (cart.length === 0) {
+          return false;
+        }
+
+        return cart.every((item) => selectedIds.includes(item.id));
       },
 
       toggleAll: () => {
-        const { cart, allSelected } = get();
+        set((state) => {
+          const { cart, selectedIds } = state;
 
-        set({
-          selectedIds: allSelected() ? [] : cart.map((i) => i.id),
+          const isAllSelected =
+            cart.length > 0 &&
+            cart.every((item) => selectedIds.includes(item.id));
+
+          return {
+            selectedIds: isAllSelected
+              ? []
+              : cart.map((item) => item.id),
+          };
         });
       },
 
       toggleItem: (id) => {
-        set((state) => ({
-          selectedIds: state.selectedIds.includes(id)
-            ? state.selectedIds.filter((i) => i !== id)
-            : [...state.selectedIds, id],
-        }));
+        set((state) => {
+          const isSelected = state.selectedIds.includes(id);
+
+          return {
+            selectedIds: isSelected
+              ? state.selectedIds.filter(
+                  (selectedId) => selectedId !== id,
+                )
+              : [...state.selectedIds, id],
+          };
+        });
       },
+
+      // ─────────────────────────────────────────────
+      // SELECTED ITEMS
+      // ─────────────────────────────────────────────
 
       selectedItems: () => {
         const { cart, selectedIds } = get();
-        return cart.filter((i) => selectedIds.includes(i.id));
+
+        return cart.filter((item) => selectedIds.includes(item.id));
       },
 
-      total: () =>
-        get()
-          .selectedItems()
-          .reduce((sum, i) => sum + Number(i.price) * i.count, 0),
+      // ─────────────────────────────────────────────
+      // TOTAL
+      // ─────────────────────────────────────────────
 
-      totalCount: () =>
-        get()
-          .selectedItems()
-          .reduce((sum, i) => sum + i.count, 0),
+      total: () => {
+        return get().selectedItems().reduce(
+          (sum, item) => sum + Number(item.price) * item.count,
+          0,
+        );
+      },
+
+      totalCount: () => {
+        return get().selectedItems().reduce(
+          (sum, item) => sum + item.count,
+          0,
+        );
+      },
     }),
+
     {
       name: "cart-storage",
+
       storage: createJSONStorage(() => storage),
+
+      partialize: (state) => ({
+        cart: state.cart.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: Number(item.price),
+          count: item.count,
+          stock_qty: Number(item.stock_qty),
+
+          // Only first image is needed in cart
+          images: item.images?.[0]
+            ? [item.images[0]]
+            : undefined,
+        })),
+
+        selectedIds: state.selectedIds,
+      }),
     },
   ),
 );

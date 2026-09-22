@@ -1,7 +1,45 @@
-import { IconProps } from '@/types/types';
-import { QuestionIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react-native';
+import React from "react";
+import Svg, { Path } from "react-native-svg";
 
-export const SupportIcon = ({ size, color, stroke }: IconProps) => {
-  return <HugeiconsIcon icon={QuestionIcon} size={size} color={color} strokeWidth={stroke} />;
+type HomeIconProps = {
+  size?: number;
+  color?: string;
+  filled?: boolean;
+  backgroundColor?: string; // filled holatda ichki chiziq rangi (odatda tugma foni)
 };
+
+export default function SupportIcon({
+  size = 24,
+  color = "#007AFF",
+  filled = false,
+  backgroundColor = "#FFF",
+}: HomeIconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M15 12C15 10.8954 15.8954 10 17 10C19.2091 10 21 11.7909 21 14C21 16.2091 19.2091 18 17 18C15.8954 18 15 17.1046 15 16V12Z"
+        fill={filled ? color : "none"}
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M9 12C9 10.8954 8.10457 10 7 10C4.79086 10 3 11.7909 3 14C3 16.2091 4.79086 18 7 18C8.10457 18 9 17.1046 9 16V12Z"
+        fill={filled ? color : "none"}
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M3 14V11C3 6.02944 7.02944 2 12 2C16.9706 2 21 6.02944 21 11V15.8462C21 17.8545 21 18.8586 20.6476 19.6417C20.2465 20.5329 19.5329 21.2465 18.6417 21.6476C17.8586 22 16.8545 22 14.8462 22H12"
+        fill={filled ? color : "none"}
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}

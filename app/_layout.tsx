@@ -1,35 +1,57 @@
-import ScreenWrapper from "@/components/layout/ScreenWrapper";
+import DismissKeyboard from "@/components/DismissKeyboard";
+import Header from "@/components/Header";
 import QueryProvider from "@/providers/QueryProvider";
-import { Stack } from "expo-router";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { AuthProvider } from "@/utils/authContext";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import Toast from "react-native-toast-message";
-import { useAuthStore } from "@/store/auth.store";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Layout() {
-  const { token, isHydrated } = useAuthStore();
-
-  if (!isHydrated) {
-    return null;
-  }
-
+export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <BottomSheetModalProvider>
-        <QueryProvider>
-          <ScreenWrapper>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Protected guard={!!token}>
-                <Stack.Screen name="(tabs)" />
-              </Stack.Protected>
-              <Stack.Protected guard={!token}>
-                <Stack.Screen name="(auth)" />
-              </Stack.Protected>
-            </Stack>
-          </ScreenWrapper>
-          <Toast />
-        </QueryProvider>
-      </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+    <AuthProvider>
+      <QueryProvider>
+        <DismissKeyboard>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <BottomSheetModalProvider>
+              <View style={{ flex: 1, backgroundColor: "#FFF" }}>
+                <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
+                  <StatusBar style="dark" />
+                  <Stack>
+                    <Stack.Screen
+                      name="(protected)"
+                      options={{ headerShown: false }}
+                    />
+
+                    <Stack.Screen
+                      name="login"
+                      options={{ headerShown: false }}
+                    />
+
+                    <Stack.Screen
+                      name="signup"
+                      options={{
+                        headerShown: false,
+                        title: "Ro'yxatdan o'tish",
+                        headerBackVisible: true,
+                        headerBackTitle: "Orqaga",
+                        
+                      }}
+                    />
+
+                    <Stack.Screen
+                      name="forgot-password"
+                      options={{ headerShown: false }}
+                    />
+                  </Stack>
+                </SafeAreaView>
+              </View>
+            </BottomSheetModalProvider>
+          </GestureHandlerRootView>
+        </DismissKeyboard>
+      </QueryProvider>
+    </AuthProvider>
   );
 }

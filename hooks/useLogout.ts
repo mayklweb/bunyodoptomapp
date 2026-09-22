@@ -1,6 +1,6 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useAuthStore } from '@/store/auth.store';
-import { useRouter } from 'expo-router';
+import { useAuthStore } from "@/store/auth.store";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 
 export const useLogout = () => {
   const queryClient = useQueryClient();
@@ -11,7 +11,7 @@ export const useLogout = () => {
     // clearAuth ichida cart ham avtomatik tozalanadi (auth.store.ts)
     clearAuth();
     queryClient.clear();
-    router.replace('/(auth)/login');
+    router.replace("/login");
   };
 
   return { logout };

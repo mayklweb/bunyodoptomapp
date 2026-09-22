@@ -1,7 +1,10 @@
 import { storage } from "@/lib/secure-storage";
 import { useCartStore } from "@/store/cart.store";
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import {
+  persist,
+  createJSONStorage,
+} from "zustand/middleware";
 
 type User = {
   id: string;
@@ -13,7 +16,11 @@ type AuthState = {
   user: User | null;
   isHydrated: boolean;
 
-  setAuth: (data: { token: string; user: User }) => void;
+  setAuth: (data: {
+    token: string;
+    user: User;
+  }) => void;
+
   setUser: (user: User) => void;
 
   clearAuth: () => void;
@@ -26,43 +33,53 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isHydrated: false,
 
-      setAuth: (data) => {
-        // Har qanday yangi login/signup'da eski akkauntning savati
-        // qolib ketmasligi uchun — bu yerda markazlashtirilgan,
-        // shuning uchun kelajakda alohida chaqirishni unutib qo'yish xavfi yo'q
-        useCartStore.getState().clearCart();
+setAuth: ({ token, user }) => {
+
+  useCartStore.getState().clearCart();
+
+  set({
+    token,
+    user,
+    isHydrated: true,
+  });
+},
+
+      setUser: (user) => {
 
         set({
-          token: data.token,
-          user: data.user,
-          isHydrated: true,
+          user,
         });
       },
 
-      setUser: (user) =>
-        set((state) => ({
-          ...state,
-          user,
-        })),
-
       clearAuth: () => {
+
         useCartStore.getState().clearCart();
 
         set({
           token: null,
           user: null,
+          isHydrated: true,
         });
       },
     }),
+
     {
       name: "auth-storage",
+
       storage: createJSONStorage(() => storage),
+
       onRehydrateStorage: () => {
+
         return (state, error) => {
+
+
           if (error) {
-            console.log("Hydration error:", error);
+         
           }
-          useAuthStore.setState({ isHydrated: true });
+
+          useAuthStore.setState({
+            isHydrated: true,
+          });
         };
       },
     },

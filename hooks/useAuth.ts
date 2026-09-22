@@ -1,52 +1,69 @@
+// import { userApi } from "@/services/api/profile.api";
+import { UserType } from "@/types";
+import {userApi} from "@/services/api/profile.api"
+import { useAuthStore } from "@/store/auth.store";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
-export function useGetMe() {
-  const queryClient = useQueryClient();
+export const queryKeys = {
+  user: ["user"] as const,
+};
 
-  return useMutation({
-    mutationFn: authApi.getMe,
-    onSuccess: (user) => {
-      queryClient.setQueryData(queryKeys.user, user);
-    },
-  });
-}
-
-export function useUser() {
-  // Read user from localStorage on mount
-  const initialUser =
-    typeof window !== "undefined"
-      ? (() => {
-          const stored = localStorage.getItem("user");
-          // Handle null, "undefined", "null", or invalid JSON
-          if (!stored || stored === "undefined" || stored === "null") {
-            return null;
-          }
-          try {
-            return JSON.parse(stored);
-          } catch {
-            return null;
-          }
-        })()
-      : null;
-
-  return useQuery<UserType | null>({
+/**
+ * Get current user from API
+ */
+export function useGetProfile() {
+  return useQuery<UserType>({
     queryKey: queryKeys.user,
-    queryFn: () => null,
-    staleTime: Infinity,
-    retry: false, // Changed from true
-    enabled: false,
-    initialData: initialUser, // ✅ Initialize from localStorage
+    queryFn: userApi.getProfile,
+    enabled: !!useAuthStore.getState().token,
   });
 }
 
+/**
+ * Current authenticated user.
+ *
+ * Auth information is stored in Zustand.
+ * Server profile data is handled by React Query.
+ */
+export function useUser() {
+  const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
 
+  return {
+    user,
+    token,
+    isHydrated,
+    isAuthenticated: !!token,
+  };
+}
+
+/**
+ * Update current user profile
+ */
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
 
   return useMutation({
-    mutationFn: authApi.updateProfile,
+    mutationFn: userApi.updateProfile,
+
     onSuccess: (updatedUser) => {
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      queryClient.setQueryData(queryKeys.user, updatedUser); // sync cache
+      // Update Zustand
+      setUser({
+        id: String(updatedUser.id),
+        name: updatedUser.name,
+      });
+
+      // Update React Query cache
+      queryClient.setQueryData(
+        queryKeys.user,
+        updatedUser,
+      );
     },
   });
 }

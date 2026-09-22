@@ -15,7 +15,18 @@
 //   },
 // };
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
+let AsyncStorage: any;
+
+try {
+  AsyncStorage = require("@react-native-async-storage/async-storage").default;
+} catch {
+  AsyncStorage = {
+    getItem: async () => null,
+    setItem: async () => null,
+    removeItem: async () => null,
+  };
+}
+
 import { Platform } from "react-native";
 
 const isServer = Platform.OS === "web" && typeof window === "undefined";

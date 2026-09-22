@@ -1,8 +1,4 @@
-import {
-  deleteAccount,
-  getProfile,
-  updateProfile,
-} from "@/services/api/profile.api";
+import {userApi} from "@/services/api/profile.api"
 import { useAuthStore } from "@/store/auth.store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLogout } from "./useLogout";
@@ -13,7 +9,7 @@ export function useProfile() {
 
   return useQuery({
     queryKey: ["user"],
-    queryFn: getProfile,
+    queryFn: userApi.getProfile,
     enabled: !!token, // 🔥 MUHIM
     retry: false,
     staleTime: 1000 * 60 * 5,
@@ -26,7 +22,7 @@ export function useUpdateProfile() {
   const setUser = useAuthStore((s) => s.setUser);
 
   return useMutation({
-    mutationFn: updateProfile,
+    mutationFn: userApi.updateProfile,
     onSuccess: (updatedUser) => {
       setUser(updatedUser);
       queryClient.setQueryData(["user"], updatedUser);
@@ -40,7 +36,7 @@ export function useDeleteAccount() {
   const { logout } = useLogout();
 
   return useMutation({
-    mutationFn: (payload: { password: string }) => deleteAccount(payload),
+    mutationFn: (payload: { password: string }) => userApi.deleteProfile(payload),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["user"] });
       queryClient.clear();

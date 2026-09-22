@@ -1,9 +1,9 @@
-import { storeApi } from '@/services/api/store.api';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { storeApi } from "@/services/api/store.api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const storeKeys = {
-  all: ['markets'],
-  one: (id: number) => ['markets', id],
+  all: ["markets"],
+  one: (id: number) => ["markets", id],
 };
 
 // 🔹 list
@@ -31,11 +31,14 @@ export const useUpdateStore = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: { id: number; data: any }) => storeApi.update(payload.id, payload.data),
+    mutationFn: (payload: { id: number; data: any }) =>
+      storeApi.update(payload.id, payload.data),
 
     onSuccess: (_, payload) => {
       queryClient.invalidateQueries({ queryKey: storeKeys.all });
-      queryClient.invalidateQueries({ queryKey: storeKeys.one(payload.id) });
+      queryClient.invalidateQueries({
+        queryKey: storeKeys.one(payload.id),
+      });
     },
   });
 };

@@ -1,7 +1,7 @@
-import axios from 'axios';
-import { useAuthStore } from '@/store/auth.store';
+import axios from "axios";
+import { useAuthStore } from "@/store/auth.store";
 
-const BASE_URL = 'https://api.bunyodoptom.uz/api/v1';
+const BASE_URL = "https://api.bunyodoptom.uz/api/v1";
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -29,5 +29,5 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );

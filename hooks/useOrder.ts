@@ -41,8 +41,6 @@ export const useCheckout = () => {
     },
 
     onError: (err) => {
-      console.log('Checkout xatosi:', err);
-
       Toast.show({
         type: 'error',
         text1: "Buyurtma qabul qilinmadi",

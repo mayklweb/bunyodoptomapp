@@ -1,18 +1,18 @@
-import { ProductsType } from "@/types/types";
+import { ProductsType } from "@/types/index";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-interface FavoritesState {
+interface FavoriteState {
   favorites: ProductsType[];
   addFavorite: (product: ProductsType) => void;
   removeFavorite: (id: number) => void;
-  toggleFavorite: (product: ProductsType) => void;
   isFavorite: (id: number) => boolean;
+  toggleFavorite: (product: ProductsType) => void;
   clearFavorites: () => void;
 }
 
-export const useFavoritesStore = create<FavoritesState>()(
+export const useFavoriteStore = create<FavoriteState>()(
   persist(
     (set, get) => ({
       favorites: [],
