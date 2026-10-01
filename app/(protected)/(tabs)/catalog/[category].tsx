@@ -75,7 +75,7 @@ export default function CategoryProductsScreen() {
                 width={CARD_SIZE}
                 onPress={() =>
                   router.push({
-                    pathname: "/(tabs)/product/[id]",
+                    pathname: "/product/[id]",
                     params: { id: item.id },
                   })
                 }

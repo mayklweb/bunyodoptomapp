@@ -1,10 +1,7 @@
 import { storage } from "@/lib/secure-storage";
-import { useCartStore } from "@/store/cart.store";
+import { useCartStore } from "@/stores/cart.store";
 import { create } from "zustand";
-import {
-  persist,
-  createJSONStorage,
-} from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 type User = {
   id: string;
@@ -16,10 +13,7 @@ type AuthState = {
   user: User | null;
   isHydrated: boolean;
 
-  setAuth: (data: {
-    token: string;
-    user: User;
-  }) => void;
+  setAuth: (data: { token: string; user: User }) => void;
 
   setUser: (user: User) => void;
 
@@ -33,26 +27,23 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isHydrated: false,
 
-setAuth: ({ token, user }) => {
+      setAuth: ({ token, user }) => {
+        useCartStore.getState().clearCart();
 
-  useCartStore.getState().clearCart();
-
-  set({
-    token,
-    user,
-    isHydrated: true,
-  });
-},
+        set({
+          token,
+          user,
+          isHydrated: true,
+        });
+      },
 
       setUser: (user) => {
-
         set({
           user,
         });
       },
 
       clearAuth: () => {
-
         useCartStore.getState().clearCart();
 
         set({
@@ -69,12 +60,8 @@ setAuth: ({ token, user }) => {
       storage: createJSONStorage(() => storage),
 
       onRehydrateStorage: () => {
-
         return (state, error) => {
-
-
           if (error) {
-         
           }
 
           useAuthStore.setState({

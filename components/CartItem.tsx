@@ -2,7 +2,7 @@ import CheckIcon from "@/components/icons/CheckIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import MinusIcon from "@/components/icons/MinusIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
-import { useCartStore } from "@/store/cart.store";
+import { useCartStore } from "@/stores/cart.store";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 

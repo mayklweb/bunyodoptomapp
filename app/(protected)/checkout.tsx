@@ -13,12 +13,13 @@ import {
 import { useRouter } from "expo-router";
 
 import { useStore } from "@/hooks/useStore";
-import { useCartStore } from "@/store/cart.store";
-import { useAuthStore } from "@/store/auth.store";
+import { useCartStore } from "@/stores/cart.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { useAddress } from "@/hooks/useAddress";
 import { useProfile } from "@/hooks/useProfile";
 import { useCheckout } from "@/hooks/useOrder";
 import { formatPhone } from "@/utils";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PRIMARY = "#0040B1";
 const PRIMARY_LIGHT = "#EFF6FF";
@@ -26,6 +27,7 @@ const API_URL = "https://api.bunyodoptom.uz";
 
 export default function CheckoutScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   // ============================================
   // AUTH
@@ -33,8 +35,6 @@ export default function CheckoutScreen() {
 
   const user = useAuthStore((state) => state.user);
   const isAuthHydrated = useAuthStore((state) => state.isHydrated);
-
-  
 
   // ============================================
   // CART
@@ -285,9 +285,9 @@ export default function CheckoutScreen() {
   // ============================================
 
   return (
-    <>
+    <View style={styles.safeArea}>
       <ScrollView
-        style={styles.container}
+        style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -628,7 +628,14 @@ export default function CheckoutScreen() {
 
       {/* Sticky bottom */}
 
-      <View style={styles.bottomBar}>
+      <View
+        style={[
+          styles.bottomBar,
+          {
+            paddingBottom: Math.max(insets.bottom, 10),
+          },
+        ]}
+      >
         <View style={styles.bottomTotal}>
           <Text style={styles.bottomTotalLabel}>Jami</Text>
 
@@ -653,7 +660,7 @@ export default function CheckoutScreen() {
           )}
         </TouchableOpacity>
       </View>
-    </>
+    </View>
   );
 }
 
@@ -671,12 +678,12 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-
   content: {
+    flexGrow: 1,
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 24,
-    gap: 14,
+    paddingTop: 20,
+    paddingBottom: 40,
+    gap: 16,
   },
 
   /* Header */
@@ -1164,7 +1171,6 @@ const styles = StyleSheet.create({
     borderTopColor: "#E9EBEF",
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 24,
   },
 
   bottomTotal: {

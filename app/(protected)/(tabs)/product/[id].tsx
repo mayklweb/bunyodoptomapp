@@ -16,9 +16,9 @@ import HeartIcon from "@/components/icons/Hearticon";
 import MinusIcon from "@/components/icons/MinusIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
 import { useProduct, useAllProducts } from "@/hooks/useProducts";
-import { useCartStore } from "@/store/cart.store";
+import { useCartStore } from "@/stores/cart.store";
 import { colors } from "@/styles/globalStyles";
-import { useFavoriteStore } from "@/store/favourite.store";
+import { useFavoriteStore } from "@/stores/favourite.store";
 
 const { width } = Dimensions.get("window");
 const CONTENT_WIDTH = width < 720 ? width : 720;

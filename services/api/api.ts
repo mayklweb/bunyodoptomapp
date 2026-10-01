@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useAuthStore } from "@/store/auth.store";
+import { useAuthStore } from "@/stores/auth.store";
 
 const BASE_URL = "https://api.bunyodoptom.uz/api/v1";
 

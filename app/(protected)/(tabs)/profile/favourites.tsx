@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { router } from "expo-router";
-import { useFavoriteStore } from "@/store/favourite.store";
+import { useFavoriteStore } from "@/stores/favourite.store";
 import HeartIcon from "@/components/icons/Hearticon";
 import CloseIcon from "@/components/icons/CloseIcon";
 import ProductCard from "@/components/ProductCard";

@@ -1,23 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-
-import {
-  sendPasswordResetOtp,
-  verifyPasswordResetOtp,
-  resetPassword,
-} from "@/services/auth";
-
-export function useSendPasswordResetOtp() {
-  return useMutation({
-    mutationFn: (phone: string) => sendPasswordResetOtp(phone),
-  });
-}
-
-export function useVerifyPasswordResetOtp() {
-  return useMutation({
-    mutationFn: ({ phone, code }: { phone: string; code: string }) =>
-      verifyPasswordResetOtp(phone, code),
-  });
-}
+import { authService } from "@/services/auth.service";
 
 export function useResetPassword() {
   return useMutation({
@@ -29,6 +11,11 @@ export function useResetPassword() {
       phone: string;
       resetToken: string;
       newPassword: string;
-    }) => resetPassword(phone, resetToken, newPassword),
+    }) =>
+      authService.resetPassword({
+        phone,
+        resetToken,
+        newPassword,
+      }),
   });
 }

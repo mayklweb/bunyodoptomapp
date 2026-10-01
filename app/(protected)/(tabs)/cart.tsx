@@ -1,5 +1,5 @@
-import { useCartStore } from "@/store/cart.store";
-import { useAuthStore } from "@/store/auth.store";
+import { useCartStore } from "@/stores/cart.store";
+import { useAuthStore } from "@/stores/auth.store";
 
 import { router } from "expo-router";
 import React, { useCallback, useMemo } from "react";

@@ -1,12 +1,8 @@
 // import { userApi } from "@/services/api/profile.api";
 import { UserType } from "@/types";
-import {userApi} from "@/services/api/profile.api"
-import { useAuthStore } from "@/store/auth.store";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { userApi } from "@/services/api/profile.api";
+import { useAuthStore } from "@/stores/auth.store";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const queryKeys = {
   user: ["user"] as const,
@@ -60,10 +56,7 @@ export function useUpdateProfile() {
       });
 
       // Update React Query cache
-      queryClient.setQueryData(
-        queryKeys.user,
-        updatedUser,
-      );
+      queryClient.setQueryData(queryKeys.user, updatedUser);
     },
   });
 }

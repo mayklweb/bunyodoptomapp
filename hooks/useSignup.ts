@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { signupRequest } from '@/services/auth';
-import { useAuthStore } from '@/store/auth.store';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { signupRequest } from "@/services/auth";
+import { useAuthStore } from "@/stores/auth.store";
 
 export const useSignup = () => {
   const queryClient = useQueryClient();

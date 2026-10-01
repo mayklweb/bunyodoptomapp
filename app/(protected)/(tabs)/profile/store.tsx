@@ -145,6 +145,7 @@ function AddressList({
 
 // ─── Inline form (create & edit) ─────────────────────────────────────────────
 
+
 function StoreForm({
   title,
   addresses,
@@ -163,16 +164,65 @@ function StoreForm({
   saving: boolean;
 }) {
   const [name, setName] = useState(initialName);
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(
-    initialAddress,
-  );
+  const [selectedAddress, setSelectedAddress] =
+    useState<Address | null>(initialAddress);
 
-  const canSave = name.trim().length > 0 && selectedAddress !== null;
+  const [nameError, setNameError] = useState("");
+  const [addressError, setAddressError] = useState("");
+
+  const handleNameChange = (value: string) => {
+    setName(value);
+
+    if (value.trim()) {
+      setNameError("");
+    }
+  };
+
+  const handleAddressSelect = (address: Address) => {
+    setSelectedAddress(address);
+    setAddressError("");
+  };
+
+  const handleSubmit = () => {
+    let isValid = true;
+
+    // Do'kon nomi
+    if (!name.trim()) {
+      setNameError("Do'kon nomini kiriting");
+      isValid = false;
+    } else {
+      setNameError("");
+    }
+
+    // Manzil
+    if (!selectedAddress) {
+      setAddressError("Do'kon manzilini tanlang");
+      isValid = false;
+    } else {
+      setAddressError("");
+    }
+
+    if (!isValid) {
+      return;
+    }
+
+    if (!selectedAddress) {
+      return;
+    }
+
+    onSave(name.trim(), selectedAddress);
+  };
 
   return (
     <View style={{ gap: 16 }}>
       {/* Header */}
-      <Text style={{ fontSize: 16, fontWeight: "600", color: "#111827" }}>
+      <Text
+        style={{
+          fontSize: 16,
+          fontWeight: "600",
+          color: "#111827",
+        }}
+      >
         {title}
       </Text>
 
@@ -188,15 +238,16 @@ function StoreForm({
         >
           Do'kon nomi
         </Text>
+
         <TextInput
           value={name}
-          onChangeText={setName}
+          onChangeText={handleNameChange}
           placeholder="masalan, Texno Dunyo"
           placeholderTextColor="#9CA3AF"
           editable={!saving}
           style={{
             borderWidth: 1,
-            borderColor: "#E5E7EB",
+            borderColor: nameError ? "#EF4444" : "#E5E7EB",
             borderRadius: 10,
             paddingHorizontal: 14,
             height: 44,
@@ -205,6 +256,18 @@ function StoreForm({
             backgroundColor: "#F9FAFB",
           }}
         />
+
+        {nameError ? (
+          <Text
+            style={{
+              fontSize: 12,
+              color: "#EF4444",
+              marginLeft: 2,
+            }}
+          >
+            {nameError}
+          </Text>
+        ) : null}
       </View>
 
       {/* Address */}
@@ -219,18 +282,37 @@ function StoreForm({
         >
           Manzil
         </Text>
+
         <AddressList
           addresses={addresses}
           selected={selectedAddress}
-          onSelect={setSelectedAddress}
+          onSelect={handleAddressSelect}
         />
+
+        {addressError ? (
+          <Text
+            style={{
+              fontSize: 12,
+              color: "#EF4444",
+              marginLeft: 2,
+            }}
+          >
+            {addressError}
+          </Text>
+        ) : null}
       </View>
 
       {/* Actions */}
-      <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 8,
+          marginTop: 4,
+        }}
+      >
         <TouchableOpacity
           onPress={onCancel}
-          disabled={saving} // FIX: so'rov ketayotganda "Bekor qilish"ni bloklash
+          disabled={saving}
           style={{
             flex: 1,
             height: 44,
@@ -242,19 +324,25 @@ function StoreForm({
             opacity: saving ? 0.5 : 1,
           }}
         >
-          <Text style={{ fontSize: 14, fontWeight: "500", color: "#374151" }}>
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: "500",
+              color: "#374151",
+            }}
+          >
             Bekor qilish
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => canSave && onSave(name.trim(), selectedAddress!)}
-          disabled={!canSave || saving}
+          onPress={handleSubmit}
+          disabled={saving}
           style={{
             flex: 1,
             height: 44,
             borderRadius: 10,
-            backgroundColor: canSave ? "#0040B1" : "#93C5FD",
+            backgroundColor: "#0040B1",
             justifyContent: "center",
             alignItems: "center",
           }}
@@ -262,7 +350,13 @@ function StoreForm({
           {saving ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Text style={{ fontSize: 14, fontWeight: "600", color: "#fff" }}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "600",
+                color: "#fff",
+              }}
+            >
               Saqlash
             </Text>
           )}
@@ -271,6 +365,7 @@ function StoreForm({
     </View>
   );
 }
+
 
 // ─── Delete confirm (inline) ──────────────────────────────────────────────────
 

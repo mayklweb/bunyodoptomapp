@@ -2,16 +2,23 @@ import HeartIcon from "@/components/icons/Hearticon";
 import MinusIcon from "@/components/icons/MinusIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
 import ProductCard from "@/components/ProductCard";
+import { useProducts } from "@/hooks/products/useProducts";
 import { useAllProducts } from "@/hooks/useProducts";
-import { useCartStore } from "@/store/cart.store";
-import { useFavoriteStore } from "@/store/favourite.store";
+import { useCartStore } from "@/stores/cart.store";
+import { useFavoriteStore } from "@/stores/favourite.store";
 import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -31,21 +38,29 @@ type ProductsProps = {
 };
 
 export default function Products({ categoryId }: ProductsProps) {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useAllProducts(categoryId);
+  const { data: allProducts = [], isLoading } = useProducts();
+
+  const [randomProducts, setRandomProducts] = useState<any[]>([]);
+
+  const generateRandomProducts = useCallback(() => {
+    const shuffled = [...allProducts].sort(() => Math.random() - 0.5);
+
+    setRandomProducts(shuffled);
+  }, [allProducts]);
+
+  useEffect(() => {
+    if (allProducts.length) {
+      generateRandomProducts();
+    }
+  }, [allProducts, generateRandomProducts]);
 
   const { cart, changeQty, addToCart } = useCartStore();
-  const { toggleFavorite, isFavorite } = useFavoriteStore();
+
+  const toggleFavorite = useFavoriteStore((state) => state.toggleFavorite);
+  const isFavorite = useFavoriteStore((state) => state.isFavorite);
+
   const [product, setProduct] = useState<any>(null);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
-
-  const products = useMemo(
-    () =>
-      data?.pages
-        .flatMap((page: any) => page.data ?? [])
-        .filter((item: any) => item.images && item.images.length > 0) ?? [],
-    [data],
-  );
 
   const cartItem = cart?.find((c: any) => c.id === product?.id);
   const qty = cartItem?.count ?? 0;
@@ -55,12 +70,6 @@ export default function Products({ categoryId }: ProductsProps) {
     setProduct(item);
     bottomSheetRef.current?.present();
   }, []);
-
-  const handleLoadMore = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -102,7 +111,7 @@ export default function Products({ categoryId }: ProductsProps) {
               paddingVertical: 16,
             }}
           >
-            {products.map((item: any) => (
+            {randomProducts.map((item: any) => (
               <ProductCard
                 key={item.id}
                 item={item}
@@ -111,24 +120,6 @@ export default function Products({ categoryId }: ProductsProps) {
               />
             ))}
           </View>
-
-          {hasNextPage && (
-            <TouchableOpacity
-              style={[
-                loadMoreBtn.button,
-                isFetchingNextPage && { opacity: 0.6 },
-              ]}
-              onPress={handleLoadMore}
-              disabled={isFetchingNextPage}
-              activeOpacity={0.8}
-            >
-              {isFetchingNextPage ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={loadMoreBtn.text}>Yana yuklash</Text>
-              )}
-            </TouchableOpacity>
-          )}
         </>
       )}
 

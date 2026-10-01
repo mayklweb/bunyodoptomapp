@@ -16,7 +16,7 @@ import {
   useSendPasswordResetOtp,
   useVerifyPasswordResetOtp,
 } from "@/hooks/usePasswordReset";
-import { usePasswordResetStore } from "@/store/password-reset.store";
+import { usePasswordResetStore } from "@/stores/password-reset.store";
 
 const CODE_LENGTH = 6;
 const RESEND_SECONDS = 60;

@@ -1,5 +1,5 @@
-import {userApi} from "@/services/api/profile.api"
-import { useAuthStore } from "@/store/auth.store";
+import { userApi } from "@/services/api/profile.api";
+import { useAuthStore } from "@/stores/auth.store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLogout } from "./useLogout";
 
@@ -36,7 +36,8 @@ export function useDeleteAccount() {
   const { logout } = useLogout();
 
   return useMutation({
-    mutationFn: (payload: { password: string }) => userApi.deleteProfile(payload),
+    mutationFn: (payload: { password: string }) =>
+      userApi.deleteProfile(payload),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["user"] });
       queryClient.clear();

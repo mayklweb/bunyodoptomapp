@@ -17,7 +17,7 @@ import {
 import ArrowLeftIcon from "../../components/icons/ArrowLeftIcon";
 
 import { useResetPassword } from "@/hooks/usePasswordReset";
-import { usePasswordResetStore } from "@/store/password-reset.store";
+import { usePasswordResetStore } from "@/stores/password-reset.store";
 
 const PRIMARY = "#0040B1";
 
