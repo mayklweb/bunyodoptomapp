@@ -13,7 +13,7 @@ import ProfileIcon from "@/components/icons/ProfileIcon";
 import EditIcon from "@/components/icons/EditIcon";
 import LocationIcon from "@/components/icons/Location";
 import StoreIcon from "@/components/icons/StoreIcon";
-import HeartIcon from "@/components/icons/Hearticon";
+import HeartIcon from "@/components/icons/HeartIcon";
 import { useProfile } from "@/hooks/useProfile";
 import { formatPhone } from "@/utils";
 import { useLogout } from "@/hooks/useLogout";
