@@ -1,17 +1,18 @@
 import React from "react";
 import Svg, { Path } from "react-native-svg";
 
-type ProfileIconProps = {
+type HeartIconProps = {
   size?: number;
   color?: string;
   filled?: boolean;
+  backgroundColor?: string; // filled holatda ichki chiziq rangi (odatda tugma foni)
 };
 
 export default function HeartIcon({
   size = 24,
-  color = "#8C8C8C",
+  color = "#007AFF",
   filled = false,
-}: ProfileIconProps) {
+}: HeartIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
