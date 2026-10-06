@@ -13,7 +13,7 @@ import {
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
-import HeartIcon from "@/components/icons/Hearticon";
+import HeartIcon from "@/components/icons/HeartIcon";
 import MinusIcon from "@/components/icons/MinusIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
 import { useProduct, useAllProducts } from "@/hooks/useProducts";
