@@ -1,4 +1,3 @@
-import React from "react";
 import { View } from "react-native";
 
 export default function Container({ children }: any) {
@@ -7,8 +6,9 @@ export default function Container({ children }: any) {
       style={{
         maxWidth: 720,
         width: "100%",
-        marginHorizontal: "auto",
+        alignSelf: "center",
         paddingHorizontal: 20,
+        flexGrow: 1,
       }}
     >
       {children}

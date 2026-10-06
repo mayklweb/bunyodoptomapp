@@ -154,7 +154,6 @@ export default function OrdersScreen() {
         renderItem={({ item }: { item: any }) => (
           <OrderCard
             order={item}
-            onPress={() => setSelectedOrderId(item.id)}
             onCancel={(id) => setCancelTarget(id)}
             isCancelling={isCancelling && cancelTarget === item.id}
           />
@@ -197,7 +196,7 @@ export default function OrdersScreen() {
         }
       />
 
-      {/* Detail sheet */}
+      {/* Detail sheet
       <Modal
         visible={!!selectedOrder}
         animationType="slide"
@@ -218,7 +217,7 @@ export default function OrdersScreen() {
             />
           )}
         </View>
-      </Modal>
+      </Modal> */}
 
       {/* Cancel confirm */}
       <Modal
@@ -274,12 +273,10 @@ export default function OrdersScreen() {
 
 function OrderCard({
   order,
-  onPress,
   onCancel,
   isCancelling,
 }: {
   order: any;
-  onPress: () => void;
   onCancel: (id: number) => void;
   isCancelling: boolean;
 }) {
@@ -287,9 +284,7 @@ function OrderCard({
   const canCancel = isActive(order.status);
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.85}
-      onPress={onPress}
+    <View
       style={styles.card}
     >
       {/* Header */}
@@ -355,7 +350,7 @@ function OrderCard({
           <Text style={styles.cancelButtonText}>Bekor qilish</Text>
         </TouchableOpacity>
       )}
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -678,7 +673,7 @@ const styles = StyleSheet.create({
   // Product list on card
   productList: { gap: 10 },
   productListRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  productThumb: { width: 52, height: 52, borderRadius: 10 },
+  productThumb: { width: 54, height: 44, borderRadius: 8 },
   productThumbPlaceholder: { backgroundColor: "#F4F4F5" },
   productThumbName: {
     flex: 1,

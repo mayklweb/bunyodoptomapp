@@ -1,12 +1,8 @@
 import LocationIcon from "@/components/icons/Location";
 import StoreIcon from "@/components/icons/StoreIcon";
 import { useAddress } from "@/hooks/useAddress";
-import {
-  useCreateStore,
-  useDeleteStore,
-  useStore,
-  useUpdateStore,
-} from "@/hooks/useStore";
+import { useCreateStore, useDeleteStore, useStore, useUpdateStore } from "@/hooks/useStore";
+
 import React, { useState } from "react";
 import {
   ActivityIndicator,

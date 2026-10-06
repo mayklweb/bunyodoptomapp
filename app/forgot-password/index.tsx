@@ -14,7 +14,7 @@ import {
 } from "react-native";
 
 import { useSendPasswordResetOtp } from "@/hooks/usePasswordReset";
-import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon";
+import ArrowLeftIcon from "../../components/icons/ArrowLeftIcon";
 
 const PRIMARY = "#0040B1";
 

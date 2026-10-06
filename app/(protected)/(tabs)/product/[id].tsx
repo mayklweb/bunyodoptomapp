@@ -8,6 +8,7 @@ import {
   Pressable,
   ActivityIndicator,
   Dimensions,
+  TouchableOpacity,
 } from "react-native";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import Header from "@/components/Header";
@@ -19,6 +20,7 @@ import { useProduct, useAllProducts } from "@/hooks/useProducts";
 import { useCartStore } from "@/stores/cart.store";
 import { colors } from "@/styles/globalStyles";
 import { useFavoriteStore } from "@/stores/favourite.store";
+import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon";
 
 const { width } = Dimensions.get("window");
 const CONTENT_WIDTH = width < 720 ? width : 720;
@@ -133,7 +135,27 @@ export default function ProductDetailScreen() {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          header: () => <Header title={product.name} showBack />,
+          header: () => (
+            <View style={styles.header}>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/catalog/[category]",
+                    params: {
+                      category: product.category?.id,
+                    },
+                  })
+                }
+                hitSlop={12}
+                style={styles.backButton}
+                activeOpacity={0.7}
+              >
+                <ArrowLeftIcon size={28} color="#111" />
+              </TouchableOpacity>
+
+              <Text style={styles.title}>{product.name}</Text>
+            </View>
+          ),
         }}
       />
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -227,9 +249,32 @@ export default function ProductDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    width: "100%",
+    backgroundColor: "#fff",
+    paddingBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    gap: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.backgroundWhite,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  backButton: {
+    marginRight: 8,
+    // padding: 2,
   },
   scroll: {
     paddingBottom: 32,

@@ -5,8 +5,6 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -15,6 +13,7 @@ import {
 } from "react-native";
 
 import LeftIcon from "@/components/icons/LeftIcon";
+import DismissKeyboard from "@/components/DismissKeyboard";
 
 const PRIMARY = "#0040B1";
 
@@ -163,137 +162,141 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Back */}
-      <TouchableOpacity
-        style={styles.backButton}
-        activeOpacity={0.7}
-        onPress={handleBack}
-      >
-        <LeftIcon />
+    <DismissKeyboard>
+      <View style={styles.container}>
+        {/* Back */}
+        <TouchableOpacity
+          style={styles.backButton}
+          activeOpacity={0.7}
+          onPress={handleBack}
+        >
+          <LeftIcon />
 
-        <Text style={styles.backText}>Orqaga</Text>
-      </TouchableOpacity>
+          <Text style={styles.backText}>Orqaga</Text>
+        </TouchableOpacity>
 
-      <View style={styles.content}>
-        {/* Header */}
-        <View>
-          <Text style={styles.title}>Kirish</Text>
+        <View style={styles.content}>
+          {/* Header */}
+          <View>
+            <Text style={styles.title}>Kirish</Text>
 
-          <Text style={styles.subtitle}>Hisobingizga kiring</Text>
-        </View>
+            <Text style={styles.subtitle}>Hisobingizga kiring</Text>
+          </View>
 
-        {/* Form */}
-        <View style={styles.form}>
-          {/* Phone */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Telefon raqam</Text>
+          {/* Form */}
+          <View style={styles.form}>
+            {/* Phone */}
+            <View style={styles.field}>
+              <Text style={styles.label}>Telefon raqam</Text>
 
-            <View
-              style={[
-                styles.input,
-                focusedField === "phone" && styles.inputFocused,
-                phoneError && styles.inputError,
-              ]}
-            >
-              <Text style={styles.prefix}>+998</Text>
+              <View
+                style={[
+                  styles.input,
+                  focusedField === "phone" && styles.inputFocused,
+                  phoneError && styles.inputError,
+                ]}
+              >
+                <Text style={styles.prefix}>+998</Text>
 
-              <TextInput
-                value={formatPhone(phone)}
-                onChangeText={handlePhoneChange}
-                onFocus={() => setFocusedField("phone")}
-                onBlur={() => setFocusedField(null)}
-                placeholder="(90) 123-45-67"
-                placeholderTextColor="#A1A1AA"
-                keyboardType="phone-pad"
-                maxLength={14}
-                autoFocus
-                style={styles.phoneInput}
-              />
+                <TextInput
+                  value={formatPhone(phone)}
+                  onChangeText={handlePhoneChange}
+                  onFocus={() => setFocusedField("phone")}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="(90) 123-45-67"
+                  placeholderTextColor="#A1A1AA"
+                  keyboardType="phone-pad"
+                  maxLength={14}
+                  autoFocus
+                  style={styles.phoneInput}
+                />
+              </View>
+
+              {phoneError ? (
+                <Text style={styles.fieldError}>{phoneError}</Text>
+              ) : null}
             </View>
 
-            {phoneError ? (
-              <Text style={styles.fieldError}>{phoneError}</Text>
-            ) : null}
-          </View>
+            {/* Password */}
+            <View style={styles.field}>
+              <Text style={styles.label}>Parol</Text>
 
-          {/* Password */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Parol</Text>
+              <View
+                style={[
+                  styles.input,
+                  focusedField === "password" && styles.inputFocused,
+                  passwordError && styles.inputError,
+                ]}
+              >
+                <TextInput
+                  value={password}
+                  onChangeText={handlePasswordChange}
+                  onFocus={() => setFocusedField("password")}
+                  onBlur={() => setFocusedField(null)}
+                  onSubmitEditing={handleLogin}
+                  placeholder="••••••••"
+                  placeholderTextColor="#A1A1AA"
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  returnKeyType="done"
+                  style={styles.passwordInput}
+                />
+              </View>
 
-            <View
-              style={[
-                styles.input,
-                focusedField === "password" && styles.inputFocused,
-                passwordError && styles.inputError,
-              ]}
-            >
-              <TextInput
-                value={password}
-                onChangeText={handlePasswordChange}
-                onFocus={() => setFocusedField("password")}
-                onBlur={() => setFocusedField(null)}
-                onSubmitEditing={handleLogin}
-                placeholder="••••••••"
-                placeholderTextColor="#A1A1AA"
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="done"
-                style={styles.passwordInput}
-              />
+              {passwordError ? (
+                <Text style={styles.fieldError}>{passwordError}</Text>
+              ) : null}
             </View>
 
-            {passwordError ? (
-              <Text style={styles.fieldError}>{passwordError}</Text>
-            ) : null}
-          </View>
-
-          {/* Forgot password */}
-          <View style={styles.forgotPasswordWrapper}>
-            <TouchableOpacity
-              onPress={() => router.push("/forgot-password/" as never)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.forgotPasswordText}>
-                Parolni unutdingizmi?
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* API error */}
-          {formError ? <Text style={styles.formError}>{formError}</Text> : null}
-
-          {/* Button */}
-          <TouchableOpacity
-            onPress={handleLogin}
-            disabled={loginMutation.isPending}
-            activeOpacity={0.8}
-            style={[
-              styles.button,
-              loginMutation.isPending && styles.buttonDisabled,
-            ]}
-          >
-            {loginMutation.isPending ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.buttonText}>Kirish</Text>
-            )}
-          </TouchableOpacity>
-
-          {/* Register */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Hisobingiz yo'qmi?</Text>
-
-            <Link href="/signup/phone" asChild>
-              <TouchableOpacity activeOpacity={0.7}>
-                <Text style={styles.registerText}>Ro'yxatdan o'tish</Text>
+            {/* Forgot password */}
+            <View style={styles.forgotPasswordWrapper}>
+              <TouchableOpacity
+                onPress={() => router.push("/forgot-password/" as never)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.forgotPasswordText}>
+                  Parolni unutdingizmi?
+                </Text>
               </TouchableOpacity>
-            </Link>
+            </View>
+
+            {/* API error */}
+            {formError ? (
+              <Text style={styles.formError}>{formError}</Text>
+            ) : null}
+
+            {/* Button */}
+            <TouchableOpacity
+              onPress={handleLogin}
+              disabled={loginMutation.isPending}
+              activeOpacity={0.8}
+              style={[
+                styles.button,
+                loginMutation.isPending && styles.buttonDisabled,
+              ]}
+            >
+              {loginMutation.isPending ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.buttonText}>Kirish</Text>
+              )}
+            </TouchableOpacity>
+
+            {/* Register */}
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Hisobingiz yo'qmi?</Text>
+
+              <Link href="/signup/phone" asChild>
+                <TouchableOpacity activeOpacity={0.7}>
+                  <Text style={styles.registerText}>Ro'yxatdan o'tish</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
           </View>
         </View>
       </View>
-    </View>
+    </DismissKeyboard>
   );
 }
 

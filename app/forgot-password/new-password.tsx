@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 
 import { useState } from "react";
 
@@ -14,10 +14,10 @@ import {
   View,
 } from "react-native";
 
-import ArrowLeftIcon from "../../components/icons/ArrowLeftIcon";
 
 import { useResetPassword } from "@/hooks/usePasswordReset";
 import { usePasswordResetStore } from "@/stores/password-reset.store";
+import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon";
 
 const PRIMARY = "#0040B1";
 
