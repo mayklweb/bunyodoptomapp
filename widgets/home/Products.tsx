@@ -1,4 +1,4 @@
-import HeartIcon from "@/components/icons/Hearticon";
+import HeartIcon from "@/components/icons/HeartIcon";
 import MinusIcon from "@/components/icons/MinusIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
 import ProductCard from "@/components/ProductCard";
