@@ -17,6 +17,6 @@ export const productService = {
       ENDPOINTS.PRODUCTS.BY_ID(id),
     );
 
-    return data;
+    return data.data;
   },
 };

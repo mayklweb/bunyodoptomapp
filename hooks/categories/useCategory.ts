@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { productService } from "@/services/product.service";
-import { productKeys } from "./category.keys";
+// import { productService } from "@/services/product.service";
+import { categoryKeys } from "./category.keys";
+import { categoryService } from "@/services/category.service";
 
-export function useProduct(id?: string | number) {
+export function useCategory(id?: string | number) {
   return useQuery({
-    queryKey: productKeys.detail(id!),
+    queryKey: categoryKeys.detail(id!),
 
-    queryFn: () => productService.getProductById(id!),
+    queryFn: () => categoryService.getCategory(id!),
 
     enabled: !!id,
   });

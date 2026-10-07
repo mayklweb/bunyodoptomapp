@@ -17,7 +17,6 @@ import { useAuthStore } from "@/stores/auth.store";
 import { formatPhone } from "@/utils";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMarket } from "@/hooks/markets/useMarkets";
-import { useAddress } from "@/hooks/addresses/useAddresses";
 import { useCheckout } from "@/hooks/orders/useCheckout";
 import { useProfile } from "@/hooks/user/useProfile";
 
@@ -72,7 +71,6 @@ export default function CheckoutScreen() {
 
   const { data: store, isLoading: isStoreLoading } = useMarket();
 
-  const { data: addresses, isLoading: isAddressLoading } = useAddress();
 
   const { data: profile, isLoading: isProfileLoading } = useProfile();
 
@@ -97,7 +95,6 @@ export default function CheckoutScreen() {
   // ============================================
 
 useEffect(() => {
-  console.log("isAuthHydrated:", isAuthHydrated, "user:", user);
   if (!isAuthHydrated) return;
 
   if (!user) {
@@ -105,16 +102,8 @@ useEffect(() => {
   }
 }, [isAuthHydrated, user, router]);
 
-  // ============================================
   // DEFAULT ADDRESS
   // ============================================
-
-  useEffect(() => {
-    if (addresses?.length && selectedAddressId === null) {
-      setSelectedAddressId(addresses[0].id);
-    }
-  }, [addresses, selectedAddressId]);
-
   // ============================================
   // DEFAULT MARKET
   // ============================================
@@ -170,7 +159,7 @@ useEffect(() => {
   // ============================================
 
   const isLoading =
-    !isAuthHydrated || isStoreLoading || isAddressLoading || isProfileLoading;
+    !isAuthHydrated || isStoreLoading || isProfileLoading;
 
   // ============================================
   // CAN CHECKOUT
@@ -322,69 +311,6 @@ useEffect(() => {
           </View>
         </View>
 
-        {/* Address */}
-
-        <View style={styles.card}>
-          <View style={styles.sectionHeader}>
-            <View>
-              <Text style={styles.cardTitle}>Yetkazib berish manzili</Text>
-
-              <Text style={styles.cardSubtitle}>
-                Buyurtmani qayerga yetkazamiz?
-              </Text>
-            </View>
-          </View>
-
-          {!addresses?.length ? (
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => router.push("/profile/address")}
-              style={styles.addAddressButton}
-            >
-              <Text style={styles.addAddressText}>+ Yangi manzil qo'shish</Text>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.optionsContainer}>
-              {addresses.map((address: any) => {
-                const selected = selectedAddressId === address.id;
-
-                return (
-                  <TouchableOpacity
-                    key={address.id}
-                    activeOpacity={0.8}
-                    onPress={() => setSelectedAddressId(address.id)}
-                    style={[
-                      styles.optionCard,
-                      selected && styles.optionCardSelected,
-                    ]}
-                  >
-                    <View
-                      style={[styles.radio, selected && styles.radioSelected]}
-                    >
-                      {selected && <View style={styles.radioDot} />}
-                    </View>
-
-                    <View style={styles.optionContent}>
-                      <Text style={styles.optionTitle}>
-                        {address.region}, {address.district}
-                      </Text>
-
-                      <Text style={styles.optionDescription}>
-                        {address.address}
-                      </Text>
-                    </View>
-
-                    {selected && (
-                      <View style={styles.selectedBadge}>
-                        <Text style={styles.selectedBadgeText}>Tanlangan</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
-        </View>
 
         {/* Store */}
 

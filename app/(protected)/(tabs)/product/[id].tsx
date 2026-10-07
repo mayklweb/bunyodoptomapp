@@ -16,11 +16,13 @@ import ProductCard from "@/components/ProductCard";
 import HeartIcon from "@/components/icons/HeartIcon";
 import MinusIcon from "@/components/icons/MinusIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
-import { useProduct, useAllProducts } from "@/hooks/wfwe";
+// import { useProduct, useAllProducts } from "@/hooks/wfwe";
 import { useCartStore } from "@/stores/cart.store";
 import { colors } from "@/styles/globalStyles";
 import { useFavoriteStore } from "@/stores/favourite.store";
 import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon";
+import { useProduct } from "@/hooks/products/useProduct";
+import { useProducts } from "@/hooks/products/useProducts";
 
 const { width } = Dimensions.get("window");
 const CONTENT_WIDTH = width < 720 ? width : 720;
@@ -57,8 +59,8 @@ interface RelatedProductsData {
   pages: ProductPage[];
 }
 
-function formatPrice(price: number): string {
-  return price.toLocaleString("uz-UZ") + " so\u02bbm";
+function formatPrice(price?: number | string): string {
+  return `${Number(price ?? 0).toLocaleString("uz-UZ")} soʻm`;
 }
 
 export default function ProductDetailScreen() {
@@ -66,14 +68,16 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
+  
   const { data: product, isLoading, isError } = useProduct(id);
+  console.log("Product ID:", product?.data);
   const [activeIndex, setActiveIndex] = useState(0);
-
+  
   const { cart, addToCart, changeQty } = useCartStore();
   const { favorites, toggleFavorite, isFavorite } = useFavoriteStore();
-
+  
   // Shu kategoriyadagi boshqa mahsulotlar
-  const { data: relatedData } = useAllProducts(product?.categoryId);
+  const { data: relatedData } = useProducts(product?.categoryId);
 
   const relatedProducts = useMemo(() => {
     if (!relatedData || !product) return [];
@@ -86,8 +90,9 @@ export default function ProductDetailScreen() {
             item.id !== product.id && item.images && item.images.length > 0,
         )
         .slice(0, 10) ?? []
-    );
-  }, [relatedData, product]);
+      );
+    }, [relatedData, product]);
+    
 
   const images = useMemo<string[]>(() => {
     if (!product) return [];
@@ -184,7 +189,6 @@ export default function ProductDetailScreen() {
           )}
           <Text style={styles.name}>{product.name}</Text>
           <Text style={styles.price}>{formatPrice(product.price)}</Text>
-
           <View style={styles.actionsRow}>
             <Pressable
               style={[styles.favBtn, favorited && styles.favBtnActive]}

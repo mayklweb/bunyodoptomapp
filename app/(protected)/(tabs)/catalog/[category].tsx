@@ -1,20 +1,21 @@
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useCallback, useMemo } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
-import ProductCard from "@/components/ProductCard";
-// import { useAllProducts } from "@/hooks/wfwe";
+
 import Container from "@/components/Container";
+import ProductCard from "@/components/ProductCard";
 import { useCategories } from "@/hooks/categories/useCategories";
+import { useProducts } from "@/hooks/products/useProducts";
 
 const { width } = Dimensions.get("window");
+
 const CONTENT_WIDTH = width < 720 ? width : 720;
 const CARD_SIZE = (CONTENT_WIDTH - 20 * 2 - 16) / 2;
 
@@ -25,25 +26,24 @@ export default function CategoryProductsScreen() {
 
   const matchedCategory = useMemo(() => {
     if (!category || !categories) return undefined;
+
     const value = decodeURIComponent(category).toLowerCase();
+
     return categories.find(
-      (c: any) => c.id === Number(value) || c.name?.toLowerCase() === value,
+      (c: any) =>
+        c.id === Number(value) ||
+        c.name?.toLowerCase() === value,
     );
   }, [category, categories]);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useProducts(matchedCategory?.id);
+  const {
+    data: products = [],
+    isLoading,
+  } = useProducts(matchedCategory?.id);
 
-  const products = useMemo(
-    () => data?.pages.flatMap((page: any) => page.data ?? []) ?? [],
-    [data],
-  );
-
-  const handleLoadMore = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  console.log("CATEGORY PARAM:", category);
+  console.log("MATCHED CATEGORY:", matchedCategory);
+  console.log("PRODUCTS:", products);
 
   return (
     <View style={{ flex: 1 }}>
@@ -76,30 +76,13 @@ export default function CategoryProductsScreen() {
                 onPress={() =>
                   router.push({
                     pathname: "/product/[id]",
-                    params: { id: item.id },
+                    params: {
+                      id: String(item.id),
+                    },
                   })
                 }
               />
             )}
-            ListFooterComponent={
-              hasNextPage ? (
-                <TouchableOpacity
-                  style={[
-                    loadMoreBtn.button,
-                    isFetchingNextPage && { opacity: 0.6 },
-                  ]}
-                  onPress={handleLoadMore}
-                  disabled={isFetchingNextPage}
-                  activeOpacity={0.8}
-                >
-                  {isFetchingNextPage ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={loadMoreBtn.text}>Yana yuklash</Text>
-                  )}
-                </TouchableOpacity>
-              ) : null
-            }
           />
         )}
       </Container>
@@ -108,32 +91,18 @@ export default function CategoryProductsScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    marginVertical: 12,
-    color: "#111",
-  },
   list: {
     paddingVertical: 24,
-    gap: 16, // qatorlar orasidagi vertikal bo'shliq
+    gap: 16,
   },
+
   row: {
-    gap: 16, // ustunlar orasidagi gorizontal bo'shliq
+    gap: 16,
   },
+
   empty: {
     textAlign: "center",
     color: "#888",
     marginTop: 40,
   },
-});
-const loadMoreBtn = StyleSheet.create({
-  button: {
-    marginTop: 12,
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: "center",
-    backgroundColor: "#0040B1",
-  },
-  text: { color: "#FFF", fontSize: 15, fontWeight: "600" },
 });
