@@ -6,39 +6,46 @@ export type UpdateProfilePayload = {
   brightday?: string;
 };
 
-export type ChangePasswordPayload = {
-  old_password: string;
-  new_password: string;
-};
-
-export type DeleteAccountPayload = {
-  password: string;
-};
-
 export const userService = {
-  getMe: async () => {
+  getProfile: async () => {
     const { data } = await api.get(ENDPOINTS.USERS.ME);
 
-    return data;
+    return data.data;
   },
 
-  updateProfile: async (payload: UpdateProfilePayload) => {
-    const { data } = await api.put(ENDPOINTS.USERS.ME, payload);
+  updateProfile: async (
+    payload: UpdateProfilePayload,
+  ) => {
+    const { data } = await api.put(
+      ENDPOINTS.USERS.ME,
+      payload,
+    );
 
-    return data;
+    return data.data;
   },
 
-  changePassword: async (payload: ChangePasswordPayload) => {
-    const { data } = await api.put(ENDPOINTS.USERS.CHANGE_PASSWORD, payload);
+  changePassword: async (payload: {
+    old_password: string;
+    new_password: string;
+  }) => {
+    const { data } = await api.put(
+      ENDPOINTS.USERS.CHANGE_PASSWORD,
+      payload,
+    );
 
-    return data;
+    return data.data;
   },
 
-  deleteAccount: async (payload: DeleteAccountPayload) => {
-    const { data } = await api.delete(ENDPOINTS.USERS.ME, {
-      data: payload,
-    });
+  deleteProfile: async (payload: {
+    password: string;
+  }) => {
+    const { data } = await api.delete(
+      ENDPOINTS.USERS.ME,
+      {
+        data: payload,
+      },
+    );
 
-    return data;
+    return data.data;
   },
 };

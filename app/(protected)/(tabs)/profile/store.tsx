@@ -1,7 +1,11 @@
 import LocationIcon from "@/components/icons/Location";
 import StoreIcon from "@/components/icons/StoreIcon";
-import { useAddress } from "@/hooks/useAddress";
-import { useCreateStore, useDeleteStore, useStore, useUpdateStore } from "@/hooks/useStore";
+import { useAddress } from "@/hooks/addresses/useAddresses";
+import { useCreateMarket } from "@/hooks/markets/useCreateMarket";
+import { useDeleteMarket } from "@/hooks/markets/useDeleteMarket";
+import { useMarket } from "@/hooks/markets/useMarkets";
+import { useUpdateMarket } from "@/hooks/markets/useUpdateMarket";
+// import { useCreateStore, useDeleteStore, useMarket, useUpdateMarket } from "@/hooks/useMarket";
 
 import React, { useState } from "react";
 import {
@@ -141,7 +145,6 @@ function AddressList({
 
 // ─── Inline form (create & edit) ─────────────────────────────────────────────
 
-
 function StoreForm({
   title,
   addresses,
@@ -160,8 +163,9 @@ function StoreForm({
   saving: boolean;
 }) {
   const [name, setName] = useState(initialName);
-  const [selectedAddress, setSelectedAddress] =
-    useState<Address | null>(initialAddress);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(
+    initialAddress,
+  );
 
   const [nameError, setNameError] = useState("");
   const [addressError, setAddressError] = useState("");
@@ -362,7 +366,6 @@ function StoreForm({
   );
 }
 
-
 // ─── Delete confirm (inline) ──────────────────────────────────────────────────
 
 function DeleteConfirm({
@@ -452,7 +455,7 @@ export default function StoreScreen() {
     isLoading: isStoreLoading,
     isError: isStoreError,
     refetch: refetchStore,
-  } = useStore();
+  } = useMarket();
   const {
     data: addresses,
     isLoading: isAddressesLoading,
@@ -461,9 +464,9 @@ export default function StoreScreen() {
   } = useAddress();
   const safeAddresses: Address[] = addresses ?? [];
 
-  const { mutate: createStore, isPending: creating } = useCreateStore();
-  const { mutate: updateStore, isPending: updating } = useUpdateStore();
-  const { mutate: deleteStore, isPending: deleting } = useDeleteStore();
+  const { mutate: createStore, isPending: creating } = useCreateMarket();
+  const { mutate: updateStore, isPending: updating } = useUpdateMarket();
+  const { mutate: deleteStore, isPending: deleting } = useDeleteMarket();
 
   const store = stores?.[0];
 
@@ -500,7 +503,6 @@ export default function StoreScreen() {
           region: address.region,
           district: address.district,
           address: address.address,
-          address_id: address.id,
         },
       },
       {
@@ -508,7 +510,6 @@ export default function StoreScreen() {
           setViewMode("view");
         },
         onError: (error: any) => {
-
           Alert.alert(
             "Xato",
             error?.response?.data?.message ||

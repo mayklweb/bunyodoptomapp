@@ -12,11 +12,9 @@ import { router, useLocalSearchParams } from "expo-router";
 import { colors } from "@/styles/globalStyles";
 import LeftIcon from "@/components/icons/LeftIcon";
 
-import {
-  useSendPasswordResetOtp,
-  useVerifyPasswordResetOtp,
-} from "@/hooks/usePasswordReset";
 import { usePasswordResetStore } from "@/stores/password-reset.store";
+import { useVerifyPasswordResetOtp } from "@/hooks/auth/useVerifyPasswordResetOtp";
+import { useSendPasswordResetOtp } from "@/hooks/auth/useSendPasswordResetOtp";
 
 const CODE_LENGTH = 6;
 const RESEND_SECONDS = 60;

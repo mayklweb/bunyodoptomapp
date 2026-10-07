@@ -15,8 +15,11 @@ export function useLogin() {
 
       setAuth({
         token: data.token,
-        user: data.user,
+        user: data.data,
       });
     },
   });
 }
+
+
+

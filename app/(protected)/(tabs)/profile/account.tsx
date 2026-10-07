@@ -1,9 +1,8 @@
 import Input from "@/components/Input";
-import {
-  useDeleteAccount,
-  useProfile,
-  useUpdateProfile,
-} from "@/hooks/useProfile";
+import { useDeleteProfile } from "@/hooks/user/useDeleteProfile";
+import { useProfile } from "@/hooks/user/useProfile";
+import { useUpdateProfile } from "@/hooks/user/useUpdateProfile";
+//
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -21,6 +20,7 @@ const PHONE_LOCAL_LENGTH = 9;
 const COUNTRY_CODE = "998";
 
 export default function AccountScreen() {
+
   const {
     data: user,
     isLoading: isUserLoading,
@@ -39,7 +39,7 @@ export default function AccountScreen() {
   const original = useRef({ name: "", rawPhone: "" });
 
   const { mutate: updateProfile, isPending } = useUpdateProfile();
-  const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
+  const { mutate: deleteAccount, isPending: isDeleting } = useDeleteProfile();
 
   useEffect(() => {
     if (user) {
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
   primaryBtn: {
     marginTop: 8,

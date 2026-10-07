@@ -1,5 +1,4 @@
 import { ScrollView, View } from "react-native";
-import DismissKeyboard from "@/components/DismissKeyboard";
 import Container from "@/components/Container";
 import { Banner, Categories, Products } from "@/widgets/home";
 

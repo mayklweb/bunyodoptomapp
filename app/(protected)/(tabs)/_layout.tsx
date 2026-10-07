@@ -45,7 +45,7 @@ export default function TabLayout() {
           header: () => <Header title="" showSearch showLogo />,
 
           tabBarIcon: ({ color, focused }) => (
-            <HomeIcon color={color} filled={focused} />
+            <HomeIcon color={color as string} filled={focused} />
           ),
         }}
       />
@@ -59,7 +59,7 @@ export default function TabLayout() {
           headerShown: false,
 
           tabBarIcon: ({ color, focused }) => (
-            <ProductsIcon color={color} filled={focused} />
+            <ProductsIcon color={color as string} filled={focused} />
           ),
         }}
       />
@@ -73,7 +73,7 @@ export default function TabLayout() {
           header: () => <Header title="Savat" center />,
 
           tabBarIcon: ({ color, focused }) => (
-            <CartIcon color={color} filled={focused} />
+            <CartIcon color={color as string} filled={focused} />
           ),
         }}
       />
@@ -87,7 +87,7 @@ export default function TabLayout() {
           headerShown: false,
 
           tabBarIcon: ({ color, focused }) => (
-            <ProfileIcon color={color} filled={focused} />
+            <ProfileIcon color={color as string} filled={focused} />
           ),
         }}
       />

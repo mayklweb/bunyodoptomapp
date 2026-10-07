@@ -3,7 +3,6 @@ import MinusIcon from "@/components/icons/MinusIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/products/useProducts";
-import { useAllProducts } from "@/hooks/useProducts";
 import { useCartStore } from "@/stores/cart.store";
 import { useFavoriteStore } from "@/stores/favourite.store";
 import {

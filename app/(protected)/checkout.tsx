@@ -12,14 +12,14 @@ import {
 
 import { useRouter } from "expo-router";
 
-import { useStore } from "@/hooks/useStore";
 import { useCartStore } from "@/stores/cart.store";
 import { useAuthStore } from "@/stores/auth.store";
-import { useAddress } from "@/hooks/useAddress";
-import { useProfile } from "@/hooks/useProfile";
-import { useCheckout } from "@/hooks/useOrder";
 import { formatPhone } from "@/utils";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useMarket } from "@/hooks/markets/useMarkets";
+import { useAddress } from "@/hooks/addresses/useAddresses";
+import { useCheckout } from "@/hooks/orders/useCheckout";
+import { useProfile } from "@/hooks/user/useProfile";
 
 const PRIMARY = "#0040B1";
 const PRIMARY_LIGHT = "#EFF6FF";
@@ -42,7 +42,7 @@ export default function CheckoutScreen() {
 
   const cart = useCartStore((state) => state.cart);
   const selectedIds = useCartStore((state) => state.selectedIds);
-  const clearCart = useCartStore((state) => state.clearCart);
+  const remove = useCartStore((state) => state.remove);
 
   // ============================================
   // CART DERIVED DATA
@@ -70,7 +70,7 @@ export default function CheckoutScreen() {
   // API DATA
   // ============================================
 
-  const { data: store, isLoading: isStoreLoading } = useStore();
+  const { data: store, isLoading: isStoreLoading } = useMarket();
 
   const { data: addresses, isLoading: isAddressLoading } = useAddress();
 
@@ -96,12 +96,14 @@ export default function CheckoutScreen() {
   // AUTH GUARD
   // ============================================
 
-  useEffect(() => {
-    if (!isAuthHydrated) {
-      router.replace("/login");
-      return;
-    }
-  }, [isAuthHydrated, user, router]);
+useEffect(() => {
+  console.log("isAuthHydrated:", isAuthHydrated, "user:", user);
+  if (!isAuthHydrated) return;
+
+  if (!user) {
+    router.replace("/login");
+  }
+}, [isAuthHydrated, user, router]);
 
   // ============================================
   // DEFAULT ADDRESS
@@ -188,11 +190,6 @@ export default function CheckoutScreen() {
   // ============================================
 
   const onCheckout = useCallback(() => {
-    if (!isAuthHydrated || !user) {
-      router.replace("/login");
-      return;
-    }
-
     if (!canCheckout) {
       return;
     }
@@ -213,7 +210,10 @@ export default function CheckoutScreen() {
       } as any,
       {
         onSuccess: () => {
-          clearCart();
+          products.forEach((product) => {
+            remove(product.id);
+          });
+
           router.replace("/profile/orders");
         },
 
@@ -237,7 +237,7 @@ export default function CheckoutScreen() {
     selectedMarketId,
     paymentMethod,
     products,
-    clearCart,
+    remove,
   ]);
 
   // ============================================

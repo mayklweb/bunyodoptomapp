@@ -5,7 +5,7 @@ import { userKeys } from "./user.keys";
 
 export function useProfile() {
   return useQuery({
-    queryKey: userKeys.me(),
-    queryFn: userService.getMe,
+    queryKey: userKeys.profile(),
+    queryFn: userService.getProfile,
   });
 }

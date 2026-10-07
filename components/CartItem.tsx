@@ -68,7 +68,7 @@ export default function CartItem({ item }: any) {
           onPress={() => remove(item.id)}
         >
           <DeleteIcon size={16} color="#ef4444" />
-          <Text style={styles.deleteBtnText}>Yoq qilish</Text>
+          <Text style={styles.deleteBtnText}>O'chirish</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -1,12 +1,11 @@
 // profile/_layout.tsx
 
 import { Redirect, Stack } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
-import { useUser } from "@/hooks/useAuth";
 import Header from "@/components/Header";
+import { useAuthStore } from "@/stores/auth.store";
 
 export default function ProfileLayout() {
-  const { token } = useUser();
+  const { token } = useAuthStore((state) => state);
 
   // if (isLoading) {
   //   return (
@@ -54,15 +53,24 @@ export default function ProfileLayout() {
       />
       <Stack.Screen
         name="store"
-        options={{ headerShown: true, header: () => <Header title="Do'kon" showBack /> }}
+        options={{
+          headerShown: true,
+          header: () => <Header title="Do'kon" showBack />,
+        }}
       />
       <Stack.Screen
         name="about"
-        options={{ headerShown: true, header: () => <Header title="Biz haqimizda" showBack /> }}
+        options={{
+          headerShown: true,
+          header: () => <Header title="Biz haqimizda" showBack />,
+        }}
       />
       <Stack.Screen
         name="connect"
-        options={{ headerShown: true, header: () => <Header title="Bog'lanish" showBack /> }}
+        options={{
+          headerShown: true,
+          header: () => <Header title="Bog'lanish" showBack />,
+        }}
       />
     </Stack>
   );

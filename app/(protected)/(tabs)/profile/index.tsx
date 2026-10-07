@@ -14,9 +14,11 @@ import EditIcon from "@/components/icons/EditIcon";
 import LocationIcon from "@/components/icons/Location";
 import StoreIcon from "@/components/icons/StoreIcon";
 import HeartIcon from "@/components/icons/HeartIcon";
-import { useProfile } from "@/hooks/useProfile";
+// import { useProfile } from "@/hooks/useProfile";
 import { formatPhone } from "@/utils";
-import { useLogout } from "@/hooks/useLogout";
+// import { useLogout } from "@/hooks/useLogout";
+import { useProfile } from "@/hooks/user/useProfile";
+import { useLogout } from "@/hooks/auth/useLogout";
 
 type ProfileMenuItem = {
   id: string;
@@ -253,7 +255,7 @@ const styles = StyleSheet.create({
   },
 
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0,0,0,0.4)",
   },
   sheet: {

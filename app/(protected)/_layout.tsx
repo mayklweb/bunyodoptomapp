@@ -1,19 +1,11 @@
 import Header from "@/components/Header";
-import { useProfile } from "@/hooks/useProfile";
-import { AuthContext } from "@/utils/authContext";
-import { Redirect, Stack } from "expo-router";
-import { useContext } from "react";
+import {  Stack } from "expo-router";
 
 export const unstable_settings = {
   initialRouteName: "(tabs)", // anchor
 };
 
 export default function ProtectedLayout() {
-  const { data: user } = useProfile();
-
-  // if (!user) {
-  //   return <Redirect href="/login" />;
-  // }
 
   return (
     <Stack>

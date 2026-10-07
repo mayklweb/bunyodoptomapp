@@ -1,6 +1,6 @@
 import CategoryCard from "@/components/CategoryCard";
 import Container from "@/components/Container";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories } from "@/hooks/categories/useCategories";
 import { router } from "expo-router";
 import {
   ActivityIndicator,

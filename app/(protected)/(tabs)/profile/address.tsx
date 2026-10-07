@@ -10,19 +10,16 @@ import {
   View,
 } from "react-native";
 
-import {
-  useAddress,
-  useCreateAddress,
-  useDeleteAddress,
-  useUpdateAddress,
-} from "@/hooks/useAddress";
-
 import { districts } from "@/utils/constants";
 
 import CheckIcon from "@/components/icons/CheckIcon";
 import EditIcon from "@/components/icons/EditIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
+import { useAddress } from "@/hooks/addresses/useAddresses";
+import { useCreateAddress } from "@/hooks/addresses/useCreateAddress";
+import { useUpdateAddress } from "@/hooks/addresses/useUpdateAddress";
+import { useDeleteAddress } from "@/hooks/addresses/useDeleteAddress";
 
 interface Address {
   id: string | number;
@@ -203,7 +200,7 @@ export default function AddressScreen() {
       updateAddress.mutate(
         {
           id: Number(activeId),
-          data: payload,
+          payload,
         },
         {
           onSuccess: () => {
@@ -315,9 +312,7 @@ export default function AddressScreen() {
             <Text style={errorStyles.iconText}>⚠️</Text>
           </View>
 
-          <Text style={errorStyles.title}>
-            Manzillarni yuklab bo'lmadi
-          </Text>
+          <Text style={errorStyles.title}>Manzillarni yuklab bo'lmadi</Text>
 
           <Text style={errorStyles.subtitle}>
             Internet aloqasini tekshirib, qayta urinib ko'ring
@@ -328,9 +323,7 @@ export default function AddressScreen() {
             activeOpacity={0.8}
             onPress={() => refetch?.()}
           >
-            <Text style={errorStyles.retryText}>
-              Qayta urinish
-            </Text>
+            <Text style={errorStyles.retryText}>Qayta urinish</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -389,9 +382,7 @@ export default function AddressScreen() {
                   >
                     <Text
                       style={
-                        form.district
-                          ? styles.selectText
-                          : styles.placeholder
+                        form.district ? styles.selectText : styles.placeholder
                       }
                     >
                       {form.district || "Tumanni tanlang"}
@@ -417,9 +408,7 @@ export default function AddressScreen() {
                 </View>
 
                 {errors.district ? (
-                  <Text style={styles.errorText}>
-                    {errors.district}
-                  </Text>
+                  <Text style={styles.errorText}>{errors.district}</Text>
                 ) : null}
               </>
             ) : (
@@ -437,10 +426,7 @@ export default function AddressScreen() {
             {isEditing && isCurrent ? (
               <>
                 <TextInput
-                  style={[
-                    styles.input,
-                    errors.address && styles.inputError,
-                  ]}
+                  style={[styles.input, errors.address && styles.inputError]}
                   value={form.address}
                   placeholder="Manzilni kiriting"
                   placeholderTextColor="#9CA3AF"
@@ -448,9 +434,7 @@ export default function AddressScreen() {
                 />
 
                 {errors.address ? (
-                  <Text style={styles.errorText}>
-                    {errors.address}
-                  </Text>
+                  <Text style={styles.errorText}>{errors.address}</Text>
                 ) : null}
               </>
             ) : (
@@ -467,9 +451,7 @@ export default function AddressScreen() {
               <TouchableOpacity
                 style={[
                   styles.editButton,
-                  isEditing &&
-                    isCurrent &&
-                    styles.saveButton,
+                  isEditing && isCurrent && styles.saveButton,
                 ]}
                 activeOpacity={0.8}
                 disabled={
@@ -478,43 +460,26 @@ export default function AddressScreen() {
                   deleteAddress.isPending
                 }
                 onPress={() =>
-                  isEditing && isCurrent
-                    ? save()
-                    : startEdit(address)
+                  isEditing && isCurrent ? save() : startEdit(address)
                 }
               >
                 {isEditing && isCurrent ? (
                   <>
                     {updateAddress.isPending ? (
-                      <ActivityIndicator
-                        size="small"
-                        color="#fff"
-                      />
+                      <ActivityIndicator size="small" color="#fff" />
                     ) : (
-                      <CheckIcon
-                        size={18}
-                        color="#fff"
-                        stroke={2}
-                      />
+                      <CheckIcon size={18} color="#fff" stroke={2} />
                     )}
 
                     <Text style={styles.saveText}>
-                      {updateAddress.isPending
-                        ? "Saqlanmoqda..."
-                        : "Saqlash"}
+                      {updateAddress.isPending ? "Saqlanmoqda..." : "Saqlash"}
                     </Text>
                   </>
                 ) : (
                   <>
-                    <EditIcon
-                      size={18}
-                      color="#2563EB"
-                      stroke={2}
-                    />
+                    <EditIcon size={18} color="#2563EB" stroke={2} />
 
-                    <Text style={styles.editText}>
-                      Tahrirlash
-                    </Text>
+                    <Text style={styles.editText}>Tahrirlash</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -522,29 +487,17 @@ export default function AddressScreen() {
               <TouchableOpacity
                 style={styles.deleteButton}
                 activeOpacity={0.8}
-                disabled={
-                  deleteAddress.isPending ||
-                  updateAddress.isPending
-                }
+                disabled={deleteAddress.isPending || updateAddress.isPending}
                 onPress={() => remove(address.id)}
               >
                 {deleteAddress.isPending ? (
-                  <ActivityIndicator
-                    size="small"
-                    color="#DC2626"
-                  />
+                  <ActivityIndicator size="small" color="#DC2626" />
                 ) : (
-                  <DeleteIcon
-                    size={18}
-                    color="#DC2626"
-                    stroke={2}
-                  />
+                  <DeleteIcon size={18} color="#DC2626" stroke={2} />
                 )}
 
                 <Text style={styles.deleteText}>
-                  {deleteAddress.isPending
-                    ? "O'chirilmoqda..."
-                    : "O'chirish"}
+                  {deleteAddress.isPending ? "O'chirilmoqda..." : "O'chirish"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -572,10 +525,7 @@ export default function AddressScreen() {
             <>
               <View style={styles.selectWrapper}>
                 <TouchableOpacity
-                  style={[
-                    styles.select,
-                    errors.district && styles.inputError,
-                  ]}
+                  style={[styles.select, errors.district && styles.inputError]}
                   activeOpacity={0.7}
                   onPress={() => {
                     setIsDistrictOpen((prev) => !prev);
@@ -590,9 +540,7 @@ export default function AddressScreen() {
                 >
                   <Text
                     style={
-                      form.district
-                        ? styles.selectText
-                        : styles.placeholder
+                      form.district ? styles.selectText : styles.placeholder
                     }
                   >
                     {form.district || "Tumanni tanlang"}
@@ -607,13 +555,9 @@ export default function AddressScreen() {
                           key={d}
                           style={styles.option}
                           activeOpacity={0.7}
-                          onPress={() =>
-                            handleDistrictSelect(d)
-                          }
+                          onPress={() => handleDistrictSelect(d)}
                         >
-                          <Text style={styles.optionText}>
-                            {d}
-                          </Text>
+                          <Text style={styles.optionText}>{d}</Text>
                         </TouchableOpacity>
                       ))}
                     </ScrollView>
@@ -622,9 +566,7 @@ export default function AddressScreen() {
               </View>
 
               {errors.district ? (
-                <Text style={styles.errorText}>
-                  {errors.district}
-                </Text>
+                <Text style={styles.errorText}>{errors.district}</Text>
               ) : null}
             </>
 
@@ -634,10 +576,7 @@ export default function AddressScreen() {
 
             <>
               <TextInput
-                style={[
-                  styles.input,
-                  errors.address && styles.inputError,
-                ]}
+                style={[styles.input, errors.address && styles.inputError]}
                 value={form.address}
                 placeholderTextColor="#9CA3AF"
                 onChangeText={handleAddressChange}
@@ -645,9 +584,7 @@ export default function AddressScreen() {
               />
 
               {errors.address ? (
-                <Text style={styles.errorText}>
-                  {errors.address}
-                </Text>
+                <Text style={styles.errorText}>{errors.address}</Text>
               ) : null}
             </>
 
@@ -655,31 +592,19 @@ export default function AddressScreen() {
 
             <View style={styles.actions}>
               <TouchableOpacity
-                style={[
-                  styles.editButton,
-                  styles.saveButton,
-                ]}
+                style={[styles.editButton, styles.saveButton]}
                 activeOpacity={0.8}
                 disabled={createAddress.isPending}
                 onPress={save}
               >
                 {createAddress.isPending ? (
-                  <ActivityIndicator
-                    size="small"
-                    color="#fff"
-                  />
+                  <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                  <CheckIcon
-                    size={18}
-                    color="#fff"
-                    stroke={2}
-                  />
+                  <CheckIcon size={18} color="#fff" stroke={2} />
                 )}
 
                 <Text style={styles.saveText}>
-                  {createAddress.isPending
-                    ? "Saqlanmoqda..."
-                    : "Saqlash"}
+                  {createAddress.isPending ? "Saqlanmoqda..." : "Saqlash"}
                 </Text>
               </TouchableOpacity>
 
@@ -689,9 +614,7 @@ export default function AddressScreen() {
                 disabled={createAddress.isPending}
                 onPress={cancel}
               >
-                <Text style={styles.deleteText}>
-                  Bekor qilish
-                </Text>
+                <Text style={styles.deleteText}>Bekor qilish</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -707,9 +630,7 @@ export default function AddressScreen() {
           >
             <PlusIcon size={24} color="#0040B1" />
 
-            <Text style={styles.addText}>
-              Yangi manzil qo'shish
-            </Text>
+            <Text style={styles.addText}>Yangi manzil qo'shish</Text>
           </TouchableOpacity>
         )}
       </ScrollView>

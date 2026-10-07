@@ -10,9 +10,9 @@ import {
   View,
 } from "react-native";
 import ProductCard from "@/components/ProductCard";
-import { useAllProducts } from "@/hooks/useProducts";
-import { useCategories } from "@/hooks/useCategories";
+// import { useAllProducts } from "@/hooks/wfwe";
 import Container from "@/components/Container";
+import { useCategories } from "@/hooks/categories/useCategories";
 
 const { width } = Dimensions.get("window");
 const CONTENT_WIDTH = width < 720 ? width : 720;
@@ -32,7 +32,7 @@ export default function CategoryProductsScreen() {
   }, [category, categories]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useAllProducts(matchedCategory?.id);
+    useProducts(matchedCategory?.id);
 
   const products = useMemo(
     () => data?.pages.flatMap((page: any) => page.data ?? []) ?? [],

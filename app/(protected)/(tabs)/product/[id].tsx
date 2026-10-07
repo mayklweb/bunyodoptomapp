@@ -16,7 +16,7 @@ import ProductCard from "@/components/ProductCard";
 import HeartIcon from "@/components/icons/HeartIcon";
 import MinusIcon from "@/components/icons/MinusIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
-import { useProduct, useAllProducts } from "@/hooks/useProducts";
+import { useProduct, useAllProducts } from "@/hooks/wfwe";
 import { useCartStore } from "@/stores/cart.store";
 import { colors } from "@/styles/globalStyles";
 import { useFavoriteStore } from "@/stores/favourite.store";

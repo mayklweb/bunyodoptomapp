@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
-import { verifyOtpRequest, sendOtpRequest } from "@/services/auth";
+import { authService } from "@/services/auth.service";
 
 export default function VerifyOtpScreen() {
   const router = useRouter();
@@ -27,11 +27,15 @@ export default function VerifyOtpScreen() {
   const inputRef = useRef<TextInput>(null);
 
   const verifyOtp = useMutation({
-    mutationFn: () => verifyOtpRequest(phone, code),
+    mutationFn: () =>
+      authService.verifyOtp({
+        phone,
+        code,
+      }),
   });
 
   const resendOtp = useMutation({
-    mutationFn: () => sendOtpRequest(phone),
+    mutationFn: () => authService.sendOtp(phone),
   });
 
   useEffect(() => {
@@ -56,7 +60,7 @@ export default function VerifyOtpScreen() {
       onSuccess: () => {
         if (type === "reset-password") {
           router.replace({
-            pathname: "/forgot-password/reset",
+            pathname: "/forgot-password",
             params: {
               phone,
             },
@@ -78,10 +82,7 @@ export default function VerifyOtpScreen() {
       },
 
       onError: (error: any) => {
-        setError(
-          error?.response?.data?.message ||
-            "Tasdiqlash kodi noto'g'ri",
-        );
+        setError(error?.response?.data?.message || "Tasdiqlash kodi noto'g'ri");
       },
     });
   };
@@ -100,8 +101,7 @@ export default function VerifyOtpScreen() {
 
       onError: (error: any) => {
         setError(
-          error?.response?.data?.message ||
-            "SMS yuborishda xatolik yuz berdi",
+          error?.response?.data?.message || "SMS yuborishda xatolik yuz berdi",
         );
       },
     });
@@ -120,13 +120,10 @@ export default function VerifyOtpScreen() {
       className="flex-1"
     >
       <View className="flex-1 px-6 pt-20">
-        <Text className="text-3xl font-bold text-black">
-          Tasdiqlash kodi
-        </Text>
+        <Text className="text-3xl font-bold text-black">Tasdiqlash kodi</Text>
 
         <Text className="mt-3 text-base leading-6 text-gray-500">
-          {formattedPhone} raqamiga yuborilgan 6 xonali
-          kodni kiriting.
+          {formattedPhone} raqamiga yuborilgan 6 xonali kodni kiriting.
         </Text>
 
         <View className="mt-10">
@@ -171,9 +168,7 @@ export default function VerifyOtpScreen() {
           {seconds > 0 ? (
             <Text className="text-sm text-gray-500">
               Kodni qayta yuborish:{" "}
-              <Text className="font-semibold text-black">
-                {seconds}s
-              </Text>
+              <Text className="font-semibold text-black">{seconds}s</Text>
             </Text>
           ) : (
             <Pressable onPress={handleResend}>

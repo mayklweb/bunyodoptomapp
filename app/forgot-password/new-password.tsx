@@ -15,9 +15,9 @@ import {
 } from "react-native";
 
 
-import { useResetPassword } from "@/hooks/usePasswordReset";
 import { usePasswordResetStore } from "@/stores/password-reset.store";
 import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon";
+import { useResetPassword } from "@/hooks/auth/useResetPassword";
 
 const PRIMARY = "#0040B1";
 

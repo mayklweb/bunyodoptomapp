@@ -1,5 +1,5 @@
 import CategoryCard from "@/components/CategoryCard";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories } from "@/hooks/categories/useCategories";
 import { Link, router } from "expo-router";
 import React from "react";
 import {

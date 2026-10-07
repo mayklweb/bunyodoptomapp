@@ -112,7 +112,7 @@ function CartItem({
           />
 
           <Text style={styles.deleteText}>
-            Yo'q qilish
+         O'chirish
           </Text>
         </TouchableOpacity>
       </View>

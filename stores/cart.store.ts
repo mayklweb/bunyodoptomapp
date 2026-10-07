@@ -169,7 +169,6 @@ export const useCartStore = create<CartState>()(
       remove: (id) => {
         set((state) => ({
           cart: state.cart.filter((item) => item.id !== id),
-
           selectedIds: state.selectedIds.filter(
             (selectedId) => selectedId !== id,
           ),
@@ -210,9 +209,7 @@ export const useCartStore = create<CartState>()(
             cart.every((item) => selectedIds.includes(item.id));
 
           return {
-            selectedIds: isAllSelected
-              ? []
-              : cart.map((item) => item.id),
+            selectedIds: isAllSelected ? [] : cart.map((item) => item.id),
           };
         });
       },
@@ -223,9 +220,7 @@ export const useCartStore = create<CartState>()(
 
           return {
             selectedIds: isSelected
-              ? state.selectedIds.filter(
-                  (selectedId) => selectedId !== id,
-                )
+              ? state.selectedIds.filter((selectedId) => selectedId !== id)
               : [...state.selectedIds, id],
           };
         });
@@ -246,17 +241,15 @@ export const useCartStore = create<CartState>()(
       // ─────────────────────────────────────────────
 
       total: () => {
-        return get().selectedItems().reduce(
-          (sum, item) => sum + Number(item.price) * item.count,
-          0,
-        );
+        return get()
+          .selectedItems()
+          .reduce((sum, item) => sum + Number(item.price) * item.count, 0);
       },
 
       totalCount: () => {
-        return get().selectedItems().reduce(
-          (sum, item) => sum + item.count,
-          0,
-        );
+        return get()
+          .selectedItems()
+          .reduce((sum, item) => sum + item.count, 0);
       },
     }),
 
@@ -274,9 +267,7 @@ export const useCartStore = create<CartState>()(
           stock_qty: Number(item.stock_qty),
 
           // Only first image is needed in cart
-          images: item.images?.[0]
-            ? [item.images[0]]
-            : undefined,
+          images: item.images?.[0] ? [item.images[0]] : undefined,
         })),
 
         selectedIds: state.selectedIds,

@@ -14,7 +14,7 @@ import CloseIcon from "../../components/icons/CloseIcon";
 import SearchIcon from "../../components/icons/SearchIcon";
 import Container from "@/components/Container";
 import DismissKeyboard from "@/components/DismissKeyboard";
-import { useAllProducts } from "@/hooks/useProducts";
+import { useAllProducts } from "@/hooks/wfwe";
 import { colors } from "@/styles/globalStyles";
 import { normalizeForSearch } from "@/utils/uzbekTransliteration";
 

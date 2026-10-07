@@ -12,10 +12,12 @@ import {
   View,
 } from "react-native";
 
-import { useCancelOrder, useOrders } from "@/hooks/useOrder";
+// import { useCancelOrder, useOrders } from "@/hooks/useOrder";
 import { useCallback, useMemo, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import CloseIcon from "@/components/icons/CloseIcon";
+import { useOrders } from "@/hooks/orders/useOrders";
+import { useCancelOrder } from "@/hooks/orders/useCancelOrder";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
