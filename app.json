@@ -7,12 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "app54",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FFFFFF"
-    },
     "ios": {
       "buildNumber": "1",
       "supportsTablet": true,
@@ -27,7 +21,6 @@
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/adaptive-icon.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "uz.bunyodoptom.app"
     },
@@ -54,7 +47,8 @@
       "expo-secure-store",
       "expo-web-browser",
       "expo-image",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -41,10 +41,6 @@ export default function CategoryProductsScreen() {
     isLoading,
   } = useProducts(matchedCategory?.id);
 
-  console.log("CATEGORY PARAM:", category);
-  console.log("MATCHED CATEGORY:", matchedCategory);
-  console.log("PRODUCTS:", products);
-
   return (
     <View style={{ flex: 1 }}>
       <Container>

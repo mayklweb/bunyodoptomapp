@@ -76,22 +76,9 @@ export default function ProductDetailScreen() {
   const { cart, addToCart, changeQty } = useCartStore();
   const { favorites, toggleFavorite, isFavorite } = useFavoriteStore();
   
-  // Shu kategoriyadagi boshqa mahsulotlar
-  const { data: relatedData } = useProducts(product?.categoryId);
 
-  const relatedProducts = useMemo(() => {
-    if (!relatedData || !product) return [];
 
-    return (
-      relatedData.pages
-        .flatMap((page: any) => page.data ?? [])
-        .filter(
-          (item: any) =>
-            item.id !== product.id && item.images && item.images.length > 0,
-        )
-        .slice(0, 10) ?? []
-      );
-    }, [relatedData, product]);
+
     
 
   const images = useMemo<string[]>(() => {
@@ -231,7 +218,7 @@ export default function ProductDetailScreen() {
           </View>
         </View>
 
-        {relatedProducts.length > 0 && (
+        {/* {relatedProducts.length > 0 && (
           <View style={styles.relatedSection}>
             <Text style={styles.relatedTitle}>O'xshash mahsulotlar</Text>
 
@@ -246,7 +233,7 @@ export default function ProductDetailScreen() {
               ))}
             </View>
           </View>
-        )}
+        )} */}
       </ScrollView>
     </View>
   );

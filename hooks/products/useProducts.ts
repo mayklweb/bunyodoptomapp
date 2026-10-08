@@ -7,18 +7,19 @@ export function useProducts(categoryId?: number) {
   return useQuery({
     queryKey: [...productKeys.list, categoryId],
 
-    enabled: categoryId !== undefined,
-
     queryFn: async () => {
       const response = await productService.getAllProducts();
 
+      const products = response.data.filter(
+        (product: any) => product.images?.length > 0,
+      );
+
       if (categoryId === undefined) {
-        return response.data;
+        return products;
       }
 
-      return response.data.filter(
-        (product: any) =>
-          Number(product.category_id) === Number(categoryId),
+      return products.filter(
+        (product: any) => Number(product.category_id) === Number(categoryId),
       );
     },
   });

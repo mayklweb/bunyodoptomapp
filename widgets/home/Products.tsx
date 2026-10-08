@@ -11,13 +11,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -37,7 +31,10 @@ type ProductsProps = {
 };
 
 export default function Products({ categoryId }: ProductsProps) {
+  // const { data: allProducts = [], isLoading } = useProducts();
+
   const { data: allProducts = [], isLoading } = useProducts();
+
 
   const [randomProducts, setRandomProducts] = useState<any[]>([]);
 

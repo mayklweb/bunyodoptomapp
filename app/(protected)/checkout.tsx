@@ -168,7 +168,6 @@ useEffect(() => {
   const canCheckout =
     isAuthHydrated &&
     products.length > 0 &&
-    !!selectedAddressId &&
     !!selectedMarketId &&
     !!profileId &&
     !!selectedMarket &&
