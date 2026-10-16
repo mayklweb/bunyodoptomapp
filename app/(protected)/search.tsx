@@ -14,44 +14,38 @@ import CloseIcon from "../../components/icons/CloseIcon";
 import SearchIcon from "../../components/icons/SearchIcon";
 import Container from "@/components/Container";
 import DismissKeyboard from "@/components/DismissKeyboard";
-import { useAllProducts } from "@/hooks/wfwe";
 import { colors } from "@/styles/globalStyles";
 import { normalizeForSearch } from "@/utils/uzbekTransliteration";
+import { useProducts } from "@/hooks/products/useProducts";
 
 export default function SearchScreen() {
-  const { data: products } = useAllProducts();
+  const { data: products } = useProducts();
+
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [debounced, setDebounced] = useState("");
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
-    const timeout = setTimeout(() => inputRef.current?.focus(), 100);
-    return () => clearTimeout(timeout);
-  }, []);
+    const t = setTimeout(() => setDebounced(query), 250);
+    return () => clearTimeout(t);
+  }, [query]);
 
-  // useInfiniteQuery natijasini ({ pages: [...] }) yagona massivga aylantiramiz
-  const normalizedProducts = useMemo(() => {
-    if (!products) return [];
+  // Nomlarni bir marta normalizatsiya qilamiz (har harfda emas)
+  const indexed = useMemo(
+    () =>
+      (Array.isArray(products) ? products : []).map((p: any) => ({
+        product: p,
+        key: normalizeForSearch(String(p?.name ?? "")),
+      })),
+    [products],
+  );
 
-    const pages = (products as any)?.pages;
-    if (!Array.isArray(pages)) return [];
-
-    return pages.flatMap((page: any) => {
-      if (Array.isArray(page?.data)) return page.data;
-      if (Array.isArray(page)) return page;
-      return [];
-    });
-  }, [products]);
-
-  // Asosiy qidiruv logikasi
   const results = useMemo(() => {
-    if (!query.trim()) return [];
-    const lower = normalizeForSearch(query);
-
-    return normalizedProducts.filter((p: any) =>
-      normalizeForSearch(String(p?.name ?? "")).includes(lower),
-    );
-  }, [query, normalizedProducts]);
+    if (!debounced.trim()) return [];
+    const q = normalizeForSearch(debounced);
+    return indexed.filter((i) => i.key.includes(q)).map((i) => i.product);
+  }, [debounced, indexed]);
 
   return (
     <DismissKeyboard>
@@ -69,8 +63,8 @@ export default function SearchScreen() {
               <View style={styles.inputBox}>
                 <SearchIcon size={22} color={colors.textSecondary} />
                 <TextInput
-                  ref={inputRef}
                   value={query}
+                  autoFocus
                   returnKeyType="search"
                   onChangeText={setQuery}
                   placeholder="Mahsulot qidirish..."

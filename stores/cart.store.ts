@@ -78,6 +78,11 @@ export const useCartStore = create<CartState>()(
             };
           }
 
+          // Out of stock products cannot be added
+          if (Number(item.stock_qty) <= 0) {
+            return state;
+          }
+
           // New product
           return {
             cart: [

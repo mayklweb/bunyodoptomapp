@@ -10,6 +10,7 @@ export type SignupPayload = {
   name: string;
   phone: string;
   password: string;
+  verificationToken: string; 
 };
 
 export type VerifyOtpPayload = {

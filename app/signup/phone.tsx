@@ -11,6 +11,8 @@ import { Link, router } from "expo-router";
 
 import LeftIcon from "@/components/icons/LeftIcon";
 import { colors } from "@/styles/globalStyles";
+import { authService } from "@/services/auth.service";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 const API_URL = "https://api.bunyodoptom.uz/api/v1";
 
@@ -63,24 +65,7 @@ export default function PhoneScreen() {
 
     try {
       // 1. Telefon raqam mavjudligini tekshirish
-      const checkResponse = await fetch(`${API_URL}/users/check-phone`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          phone,
-        }),
-      });
-
-      const checkData = await checkResponse.json().catch(() => null);
-
-      if (!checkResponse.ok) {
-        throw new Error(
-          checkData?.message ||
-            "Telefon raqamini tekshirishda xatolik yuz berdi",
-        );
-      }
+      const checkData = await authService.checkPhone(phone);
 
       // 2. Telefon allaqachon mavjud
       if (checkData?.data?.exists) {
@@ -88,32 +73,16 @@ export default function PhoneScreen() {
         return;
       }
 
-      // 3. Telefon mavjud emas → OTP yuborish
-      const otpResponse = await fetch(`${API_URL}/users/send-otp`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          phone,
-        }),
-      });
-
-      const otpData = await otpResponse.json().catch(() => null);
-
-      if (!otpResponse.ok) {
-        throw new Error(otpData?.message || "SMS yuborishda xatolik yuz berdi");
-      }
+      // 3. Telefon mavjud emas -> OTP yuborish
+      await authService.sendOtp(phone);
 
       // 4. OTP verification
       router.push({
         pathname: "/signup/verify",
-        params: {
-          phone,
-        },
+        params: { phone },
       });
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Xatolik yuz berdi");
+    } catch (e) {
+      setError(getApiErrorMessage(e, "Xatolik yuz berdi"));
     } finally {
       setLoading(false);
     }

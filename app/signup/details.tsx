@@ -12,6 +12,9 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import LeftIcon from "@/components/icons/LeftIcon";
+import { authService } from "@/services/auth.service";
+import { useAuthStore } from "@/stores/auth.store";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 export default function DetailsScreen() {
   const params = useLocalSearchParams<{
@@ -46,29 +49,34 @@ export default function DetailsScreen() {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        "https://api.bunyodoptom.uz/api/v1/users/signup",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            phone,
-            verificationToken,
-            name: name.trim(),
-            password,
-          }),
-        },
-      );
+      await authService.signup({
+        phone: phone ?? "",
+        verificationToken: verificationToken ?? "",
+        name: name.trim(),
+        password,
+      });
+    } catch (e) {
+      setError(getApiErrorMessage(e, "Ro'yxatdan o'tishda xatolik"));
+      setLoading(false);
+      return;
+    }
 
-      const data = await res.json();
+    // Ro'yxatdan o'tdi -> avtomatik kirish
+    try {
+      const loginData = await authService.login({
+        phone: phone ?? "",
+        password,
+      });
 
-      if (!res.ok) {
-        throw new Error(data.message || "Ro'yxatdan o'tishda xatolik");
-      }
+      useAuthStore.getState().setAuth({
+        token: loginData.token,
+        user: loginData.data,
+      });
 
-      router.replace("/(protected)" as never);
-    } catch (e: any) {
-      setError(e.message || "Xatolik yuz berdi, qayta urinib ko'ring");
+      router.replace("/(protected)/(tabs)");
+    } catch {
+      // Hisob yaratildi, faqat avto-kirish bo'lmadi
+      router.replace("/login");
     } finally {
       setLoading(false);
     }
@@ -89,7 +97,7 @@ export default function DetailsScreen() {
           maxWidth: 720,
           paddingHorizontal: 20,
           marginHorizontal: "auto",
-          backgroundColor: "#FFF"
+          backgroundColor: "#FFF",
         }}
       >
         <TouchableOpacity

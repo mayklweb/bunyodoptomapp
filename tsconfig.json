@@ -3,9 +3,21 @@
   "compilerOptions": {
     "strict": true,
     // "tsx": "react-native",
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ],
+      "@tanstack/react-query": [
+        "./node_modules/@tanstack/react-query/build/modern/index"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }

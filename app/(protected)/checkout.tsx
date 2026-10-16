@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   ActivityIndicator,
@@ -19,6 +25,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMarket } from "@/hooks/markets/useMarkets";
 import { useCheckout } from "@/hooks/orders/useCheckout";
 import { useProfile } from "@/hooks/user/useProfile";
+
+import type { CheckoutPayload } from "@/services/order.service";
+import { createIdempotencyKey } from "@/utils/idempotency";
 
 const PRIMARY = "#0040B1";
 const PRIMARY_LIGHT = "#EFF6FF";
@@ -71,7 +80,6 @@ export default function CheckoutScreen() {
 
   const { data: store, isLoading: isStoreLoading } = useMarket();
 
-
   const { data: profile, isLoading: isProfileLoading } = useProfile();
 
   const { mutate: checkout, isPending } = useCheckout();
@@ -90,17 +98,21 @@ export default function CheckoutScreen() {
 
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
+  const idempotencyRef = useRef<{ signature: string; key: string } | null>(
+    null,
+  );
+
   // ============================================
   // AUTH GUARD
   // ============================================
 
-useEffect(() => {
-  if (!isAuthHydrated) return;
+  useEffect(() => {
+    if (!isAuthHydrated) return;
 
-  if (!user) {
-    router.replace("/login");
-  }
-}, [isAuthHydrated, user, router]);
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [isAuthHydrated, user, router]);
 
   // DEFAULT ADDRESS
   // ============================================
@@ -158,8 +170,7 @@ useEffect(() => {
   // LOADING
   // ============================================
 
-  const isLoading =
-    !isAuthHydrated || isStoreLoading || isProfileLoading;
+  const isLoading = !isAuthHydrated || isStoreLoading || isProfileLoading;
 
   // ============================================
   // CAN CHECKOUT
@@ -178,54 +189,59 @@ useEffect(() => {
   // ============================================
 
   const onCheckout = useCallback(() => {
-    if (!canCheckout) {
+    if (!canCheckout || selectedMarketId === null) {
       return;
     }
 
     setCheckoutError(null);
 
-    checkout(
-      {
-        user_id: profileId,
-        total_amount: totalAmount,
-        address_id: selectedAddressId,
-        market: selectedMarket,
-        market_id: selectedMarketId,
-        payment_method: paymentMethod,
-        payed: false,
-        status: "preparing",
-        products,
-      } as any,
-      {
-        onSuccess: () => {
-          products.forEach((product) => {
-            remove(product.id);
-          });
+    const items = products.map((product) => ({
+      id: product.id,
+      qty: product.count,
+    }));
 
-          router.replace("/profile/orders");
-        },
+    // Buyurtma tarkibi o'zgarsa, yangi kalit yaratiladi
+    const signature = `${selectedMarketId}|${paymentMethod}|${items
+      .map((item) => `${item.id}:${item.qty}`)
+      .join(",")}`;
 
-        onError: (error: any) => {
-          setCheckoutError(
-            "Buyurtmani rasmiylashtirib bo'lmadi. Qaytadan urinib ko'ring.",
-          );
-        },
+    if (idempotencyRef.current?.signature !== signature) {
+      idempotencyRef.current = { signature, key: createIdempotencyKey() };
+    }
+
+    const payload: CheckoutPayload = {
+      market_id: selectedMarketId,
+      payment_method: paymentMethod,
+      idempotency_key: idempotencyRef.current.key,
+      products: items,
+    };
+
+    checkout(payload, {
+      onSuccess: () => {
+        idempotencyRef.current = null;
+
+        products.forEach((product) => {
+          remove(product.id);
+        });
+
+        router.replace("/profile/orders");
       },
-    );
+
+      onError: () => {
+        // Kalit saqlanadi: qayta urinish takroriy buyurtma yaratmaydi
+        setCheckoutError(
+          "Buyurtmani rasmiylashtirib bo'lmadi. Qaytadan urinib ko'ring.",
+        );
+      },
+    });
   }, [
-    isAuthHydrated,
-    user,
     canCheckout,
-    router,
-    checkout,
-    profileId,
-    totalAmount,
-    selectedAddressId,
-    selectedMarket,
     selectedMarketId,
     paymentMethod,
     products,
+    checkout,
     remove,
+    router,
   ]);
 
   // ============================================
@@ -309,7 +325,6 @@ useEffect(() => {
             </View>
           </View>
         </View>
-
 
         {/* Store */}
 

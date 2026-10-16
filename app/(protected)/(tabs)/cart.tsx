@@ -25,6 +25,8 @@ export default function CartScreen() {
 
   const isHydrated = useAuthStore((state) => state.isHydrated);
 
+  const token = useAuthStore((state) => state.token);
+
   // -----------------------------
   // Selected
   // -----------------------------
@@ -96,7 +98,12 @@ export default function CartScreen() {
   }, []);
 
   const handleCheckout = useCallback(() => {
+    // Auth holati hali yuklanmagan bo'lsa, hech narsa qilmaymiz
     if (!isHydrated) {
+      return;
+    }
+
+    if (!token) {
       router.push("/login");
       return;
     }
@@ -106,7 +113,7 @@ export default function CartScreen() {
     }
 
     router.push("/checkout");
-  }, [isHydrated, selectedCount]);
+  }, [isHydrated, token, selectedCount]);
 
   // -----------------------------
   // UI

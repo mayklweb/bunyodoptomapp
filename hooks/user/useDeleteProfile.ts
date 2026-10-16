@@ -4,6 +4,7 @@ import {
 } from "@tanstack/react-query";
 
 import { userService } from "@/services/user.service";
+import { useCartStore } from "@/stores/cart.store";
 
 export function useDeleteProfile() {
   const queryClient = useQueryClient();
@@ -13,6 +14,7 @@ export function useDeleteProfile() {
       userService.deleteProfile(payload),
 
     onSuccess: () => {
+      useCartStore.getState().clearCart();
       queryClient.clear();
     },
   });

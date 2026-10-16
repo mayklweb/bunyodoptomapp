@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import LeftIcon from "@/components/icons/LeftIcon";
+import { authService } from "@/services/auth.service";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 const CODE_LENGTH = 6;
 const RESEND_SECONDS = 60;
@@ -42,27 +44,17 @@ export default function VerifyScreen() {
       setLoading(true);
 
       try {
-        const res = await fetch(
-          "https://api.bunyodoptom.uz/api/v1/users/verify-otp",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone, code: fullCode }),
-          },
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || "Kod noto'g'ri");
-        }
+        const data = await authService.verifyOtp({
+          phone: phone ?? "",
+          code: fullCode,
+        });
 
         router.push({
           pathname: "/signup/details",
           params: { phone, verificationToken: data.verificationToken },
         });
-      } catch (e: any) {
-        setError(e.message || "Kod noto'g'ri, qayta urinib ko'ring");
+      } catch (e) {
+        setError(getApiErrorMessage(e, "Kod noto'g'ri, qayta urinib ko'ring"));
         setCode("");
         hiddenInput.current?.focus();
       } finally {
@@ -88,16 +80,12 @@ export default function VerifyScreen() {
     if (timer > 0) return;
     setError("");
     try {
-      await fetch("https://api.bunyodoptom.uz/api/v1/users/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
-      });
+      await authService.sendOtp(phone ?? "");
       setCode("");
       hiddenInput.current?.focus();
       setTimer(RESEND_SECONDS);
-    } catch {
-      setError("Kodni qayta yuborishda xatolik");
+    } catch (e) {
+      setError(getApiErrorMessage(e, "Kodni qayta yuborishda xatolik"));
     }
   };
 

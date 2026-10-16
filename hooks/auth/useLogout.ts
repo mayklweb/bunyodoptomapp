@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/stores/auth.store";
+import { useCartStore } from "@/stores/cart.store";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
@@ -10,6 +11,7 @@ export const useLogout = () => {
 
   const logout = () => {
     clearAuth();
+    useCartStore.getState().clearCart();
     queryClient.clear();
     router.replace("/login");
   };

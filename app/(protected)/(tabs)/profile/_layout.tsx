@@ -27,14 +27,7 @@ export default function ProfileLayout() {
         name="account"
         options={{
           headerShown: true,
-          header: () => <Header title="Shaxsiy ma'lumotlar" showBack />,
-        }}
-      />
-      <Stack.Screen
-        name="address"
-        options={{
-          headerShown: true,
-          header: () => <Header title="Manzil" showBack />,
+          header: () => <Header title="Ma'lumotlarim" showBack />,
         }}
       />
       <Stack.Screen
@@ -55,7 +48,7 @@ export default function ProfileLayout() {
         name="store"
         options={{
           headerShown: true,
-          header: () => <Header title="Do'kon" showBack />,
+          header: () => <Header title="Do'konim" showBack />,
         }}
       />
       <Stack.Screen

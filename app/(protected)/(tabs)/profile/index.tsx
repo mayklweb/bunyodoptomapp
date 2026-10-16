@@ -14,9 +14,7 @@ import EditIcon from "@/components/icons/EditIcon";
 import LocationIcon from "@/components/icons/Location";
 import StoreIcon from "@/components/icons/StoreIcon";
 import HeartIcon from "@/components/icons/HeartIcon";
-// import { useProfile } from "@/hooks/useProfile";
 import { formatPhone } from "@/utils";
-// import { useLogout } from "@/hooks/useLogout";
 import { useProfile } from "@/hooks/user/useProfile";
 import { useLogout } from "@/hooks/auth/useLogout";
 
@@ -30,33 +28,27 @@ type ProfileMenuItem = {
 const menuItems: ProfileMenuItem[] = [
   {
     id: "account",
-    label: "Shaxsiy ma'lumotlar",
+    label: "Ma'lumotlarim",
     icon: <ProfileIcon size={20} color="#404040" />,
     route: "/profile/account",
   },
   {
-    id: "address",
-    label: "Manzil",
-    icon: <LocationIcon size={20} color="#404040" />,
-    route: "/profile/address",
-  },
-  {
     id: "orders",
-    label: "Buyurtmalar",
+    label: "Buyurtmalarim",
     icon: <OrderIcon size={20} color="#404040" />,
     route: "/profile/orders",
-  },
-  {
-    id: "favourites",
-    label: "Sevimlilar",
-    icon: <HeartIcon size={20} color="#404040" />,
-    route: "/profile/favourites",
   },
   {
     id: "store",
     label: "Do'konim",
     icon: <StoreIcon size={20} color="#404040" />,
     route: "/profile/store",
+  },
+  {
+    id: "favourites",
+    label: "Sevimlilarim",
+    icon: <HeartIcon size={20} color="#404040" />,
+    route: "/profile/favourites",
   },
 ];
 const infoItems: ProfileMenuItem[] = [
@@ -195,7 +187,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
