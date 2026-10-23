@@ -1,4 +1,8 @@
-export const districts = [
+export const REGION = [
+  "Xorazm"
+]
+
+export const DISTRICTS = [
   "Urganch",
   "Xiva",
   "Hazorasp",

@@ -21,37 +21,44 @@ import { useCancelOrder } from "@/hooks/orders/useCancelOrder";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const ACTIVE_STATUSES = ["pending", "processing", "shipping", "preparing"];
+// Backend yozuvidagi farqlarni tenglashtiradi:
+// "On the way" / "on-the-way" -> "on_the_way", "cancelled" -> "canceled"
+const normalizeStatus = (s: string) => {
+  const v = String(s ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+  return v === "cancelled" ? "canceled" : v;
+};
+
+const ACTIVE_STATUSES = ["new", "on_the_way"];
 
 const ORDER_TIMELINE: { key: string; label: string }[] = [
-  { key: "pending", label: "Buyurtma qabul qilindi" },
-  { key: "preparing", label: "Tayyorlanmoqda" },
-  { key: "shipping", label: "Yo'lda" },
+  { key: "new", label: "Buyurtma qabul qilindi" },
+  { key: "on_the_way", label: "Yo'lda" },
   { key: "delivered", label: "Yetkazildi" },
 ];
 
 const getStatus = (status: string) => {
-  switch (status) {
-    case "pending":
-      return { text: "Kutilmoqda", bg: "#FEF3C7", color: "#D97706" };
-    case "preparing":
-    case "processing":
-      return { text: "Tayyorlanmoqda", bg: "#DBEAFE", color: "#2563EB" };
-    case "shipping":
+  switch (normalizeStatus(status)) {
+    case "new":
+      return { text: "Yangi", bg: "#FEF3C7", color: "#D97706" };
+    case "on_the_way":
       return { text: "Yo'lda", bg: "#E0E7FF", color: "#4F46E5" };
     case "delivered":
       return { text: "Yetkazildi", bg: "#DCFCE7", color: "#16A34A" };
-    case "cancelled":
+    case "canceled":
       return { text: "Bekor qilindi", bg: "#FEE2E2", color: "#DC2626" };
     default:
       return { text: status, bg: "#F4F4F5", color: "#71717A" };
   }
 };
 
-const normalizeStatus = (s: string) => (s === "processing" ? "preparing" : s);
-
 const timelineStepIndex = (status: string) =>
   ORDER_TIMELINE.findIndex((s) => s.key === normalizeStatus(status));
+
+const isActive = (status: string) =>
+  ACTIVE_STATUSES.includes(normalizeStatus(status));
 
 const formatDate = (iso: string) => {
   if (!iso) return "";
@@ -63,13 +70,13 @@ const formatDate = (iso: string) => {
   );
 };
 
-const isActive = (status: string) => ACTIVE_STATUSES.includes(status);
-
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function OrdersScreen() {
   const { data: orders, isLoading, isError, refetch } = useOrders();
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
+
+  console.log(isError);
 
   const [tab, setTab] = useState<"active" | "all">("active");
 
@@ -283,12 +290,10 @@ function OrderCard({
   isCancelling: boolean;
 }) {
   const status = getStatus(order.status);
-  const canCancel = isActive(order.status);
+  const canCancel = normalizeStatus(order.status) === "new";
 
   return (
-    <View
-      style={styles.card}
-    >
+    <View style={styles.card}>
       {/* Header */}
       <View style={styles.cardHeader}>
         <View style={{ flex: 1, marginRight: 8 }}>
@@ -370,7 +375,7 @@ function OrderDetail({
   isCancelling: boolean;
 }) {
   const status = getStatus(order.status);
-  const isCancelled = order.status === "cancelled";
+  const isCancelled = normalizeStatus(order.status) === "canceled";
   const currentStep = timelineStepIndex(order.status);
   const canCancel = isActive(order.status);
 

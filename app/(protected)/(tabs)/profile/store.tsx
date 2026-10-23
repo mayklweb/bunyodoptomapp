@@ -1,144 +1,138 @@
-import LocationIcon from "@/components/icons/Location";
 import StoreIcon from "@/components/icons/StoreIcon";
-import { useAddress } from "@/hooks/addresses/useAddresses";
 import { useCreateMarket } from "@/hooks/markets/useCreateMarket";
 import { useDeleteMarket } from "@/hooks/markets/useDeleteMarket";
 import { useMarket } from "@/hooks/markets/useMarkets";
 import { useUpdateMarket } from "@/hooks/markets/useUpdateMarket";
-// import { useCreateStore, useDeleteStore, useMarket, useUpdateMarket } from "@/hooks/useMarket";
+import { Picker } from "@react-native-picker/picker";
+import { DISTRICTS, REGION } from "@/utils/constants";
 
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Modal,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import DownIcon from "@/components/icons/DownIcon";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── District picker (inline) ────────────────────────────────────────────────
 
-interface Address {
-  id: number;
-  region: string;
-  district: string;
-  address: string;
-}
-
-// ─── Address picker (inline, no modal) ───────────────────────────────────────
-
-function AddressList({
-  addresses,
+function DistrictSelect({
+  districts,
   selected,
   onSelect,
+  disabled,
+  hasError,
 }: {
-  addresses: Address[];
-  selected: Address | null;
-  onSelect: (a: Address) => void;
+  districts: string[];
+  selected: string | null;
+  onSelect: (d: string) => void;
+  disabled?: boolean;
+  hasError?: boolean;
 }) {
-  // FIX: bo'sh holat uchun tushunarli xabar (avval hech narsa ko'rsatilmasdi)
-  if (addresses.length === 0) {
-    return (
-      <View
-        style={{
-          borderWidth: 1,
-          borderColor: "#E5E7EB",
-          borderRadius: 12,
-          padding: 16,
-          alignItems: "center",
-          gap: 4,
-        }}
-      >
-        <Text style={{ fontSize: 13, color: "#6B7280", textAlign: "center" }}>
-          Saqlangan manzil topilmadi.{"\n"}Avval manzil qo'shing.
-        </Text>
-      </View>
-    );
-  }
+  const [open, setOpen] = useState(false);
 
   return (
-    <View style={{ gap: 6 }}>
-      {addresses.map((a: Address) => {
-        const isSelected = selected?.id === a.id;
-        return (
-          <TouchableOpacity
-            key={a.id}
-            onPress={() => onSelect(a)}
-            activeOpacity={0.7}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              padding: 12,
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: isSelected ? "#0040B1" : "#E5E7EB",
-              backgroundColor: isSelected ? "#EEF2FF" : "#fff",
-              gap: 10,
-            }}
+    <View style={{ gap: 8 }}>
+      {/* Select maydoni */}
+      <TouchableOpacity
+        onPress={() => setOpen((v) => !v)}
+        disabled={disabled}
+        activeOpacity={0.8}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          height: 48,
+          paddingHorizontal: 14,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: hasError ? "#EF4444" : open ? "#0040B1" : "#E5E7EB",
+          backgroundColor: open ? "#F5F8FF" : "#F9FAFB",
+          opacity: disabled ? 0.5 : 1,
+          gap: 10,
+        }}
+      >
+        <Text
+          style={{
+            flex: 1,
+            fontSize: 15,
+            fontWeight: selected ? "500" : "400",
+            color: selected ? "#111827" : "#9CA3AF",
+          }}
+          numberOfLines={1}
+        >
+          {selected ?? "Tumanni tanlang"}
+        </Text>
+
+        <View
+          style={{
+            transform: [{ rotate: open ? "180deg" : "0deg" }],
+          }}
+        >
+          <DownIcon size={24} color="#9CA3AF" />
+        </View>
+      </TouchableOpacity>
+
+      {/* Ochiladigan ro'yxat */}
+      {open && (
+        <View
+          style={{
+            borderRadius: 14,
+            backgroundColor: "#fff",
+            borderWidth: 1,
+            borderColor: "#E5E7EB",
+            padding: 6,
+            shadowColor: "#000",
+            shadowOpacity: 0.08,
+            shadowRadius: 12,
+            shadowOffset: { width: 0, height: 4 },
+            elevation: 4,
+          }}
+        >
+          <ScrollView
+            style={{ maxHeight: 240 }}
+            nestedScrollEnabled
+            showsVerticalScrollIndicator={false}
           >
-            {/* Icon */}
-            <View
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 18,
-                backgroundColor: isSelected ? "#C7D7F8" : "#F3F4F6",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <LocationIcon color={isSelected ? "#0040B1" : "#9CA3AF"} />
-            </View>
-
-            {/* Text */}
-            <View style={{ flex: 1 }}>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 14,
-                  fontWeight: isSelected ? "600" : "400",
-                  color: isSelected ? "#0040B1" : "#111827",
-                }}
-              >
-                {a.address}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  color: isSelected ? "#3060C8" : "#9CA3AF",
-                  marginTop: 2,
-                }}
-              >
-                {a.region} · {a.district}
-              </Text>
-            </View>
-
-            {/* Check */}
-            {isSelected ? (
-              <View
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 10,
-                  backgroundColor: "#0040B1",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text
-                  style={{ color: "#fff", fontSize: 11, fontWeight: "700" }}
+            {districts.map((d) => {
+              const isSelected = selected === d;
+              return (
+                <TouchableOpacity
+                  key={d}
+                  onPress={() => {
+                    onSelect(d);
+                    setOpen(false);
+                  }}
+                  activeOpacity={0.7}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingHorizontal: 12,
+                    paddingVertical: 12,
+                    borderRadius: 10,
+                    backgroundColor: isSelected ? "#EEF2FF" : "transparent",
+                  }}
                 >
-                  ✓
-                </Text>
-              </View>
-            ) : (
-              <View style={{ width: 20 }} />
-            )}
-          </TouchableOpacity>
-        );
-      })}
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: isSelected ? "600" : "400",
+                      color: isSelected ? "#0040B1" : "#111827",
+                    }}
+                  >
+                    {d}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }
@@ -147,46 +141,50 @@ function AddressList({
 
 function StoreForm({
   title,
-  addresses,
+  districts,
   initialName = "",
-  initialAddress = null,
+  initialDistrict = null,
+  initialAddress = "",
   onSave,
   onCancel,
   saving,
 }: {
   title: string;
-  addresses: Address[];
+  districts: string[];
   initialName?: string;
-  initialAddress?: Address | null;
-  onSave: (name: string, address: Address) => void;
+  initialDistrict?: string | null;
+  initialAddress?: string;
+  onSave: (name: string, district: string, address: string) => void;
   onCancel: () => void;
   saving: boolean;
 }) {
   const [name, setName] = useState(initialName);
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(
-    initialAddress,
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(
+    initialDistrict,
   );
-
   const [nameError, setNameError] = useState("");
+  const [districtError, setDistrictError] = useState("");
+  const [address, setAddress] = useState(initialAddress);
   const [addressError, setAddressError] = useState("");
 
   const handleNameChange = (value: string) => {
     setName(value);
-
-    if (value.trim()) {
-      setNameError("");
-    }
+    if (value.trim()) setNameError("");
   };
 
-  const handleAddressSelect = (address: Address) => {
-    setSelectedAddress(address);
-    setAddressError("");
+  const handleDistrictSelect = (d: string) => {
+    setSelectedDistrict(d);
+    setDistrictError("");
+  };
+
+  const handleAddressChange = (value: string) => {
+    setAddress(value);
+    if (value.trim()) setAddressError("");
   };
 
   const handleSubmit = () => {
     let isValid = true;
 
-    // Do'kon nomi
     if (!name.trim()) {
       setNameError("Do'kon nomini kiriting");
       isValid = false;
@@ -194,35 +192,29 @@ function StoreForm({
       setNameError("");
     }
 
-    // Manzil
-    if (!selectedAddress) {
-      setAddressError("Do'kon manzilini tanlang");
+    if (!selectedDistrict) {
+      setDistrictError("Tumanni tanlang");
+      isValid = false;
+    } else {
+      setDistrictError("");
+    }
+
+    if (!address.trim()) {
+      setAddressError("Manzilni kiriting (mahalla, ko'cha, uy)");
       isValid = false;
     } else {
       setAddressError("");
     }
 
-    if (!isValid) {
-      return;
-    }
+    if (!isValid || !selectedDistrict) return;
 
-    if (!selectedAddress) {
-      return;
-    }
-
-    onSave(name.trim(), selectedAddress);
+    onSave(name.trim(), selectedDistrict, address.trim());
   };
 
   return (
     <View style={{ gap: 16 }}>
       {/* Header */}
-      <Text
-        style={{
-          fontSize: 16,
-          fontWeight: "600",
-          color: "#111827",
-        }}
-      >
+      <Text style={{ fontSize: 16, fontWeight: "600", color: "#111827" }}>
         {title}
       </Text>
 
@@ -258,14 +250,65 @@ function StoreForm({
         />
 
         {nameError ? (
-          <Text
-            style={{
-              fontSize: 12,
-              color: "#EF4444",
-              marginLeft: 2,
-            }}
-          >
+          <Text style={{ fontSize: 12, color: "#EF4444", marginLeft: 2 }}>
             {nameError}
+          </Text>
+        ) : null}
+      </View>
+
+      {/* Region (default, disabled) */}
+      <View style={{ gap: 6 }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: "#9CA3AF",
+            textTransform: "uppercase",
+            letterSpacing: 0.5,
+          }}
+        >
+          Viloyat
+        </Text>
+
+        <TextInput
+          value={REGION[0]}
+          editable={false}
+          style={{
+            borderWidth: 1,
+            borderColor: "#E5E7EB",
+            borderRadius: 10,
+            paddingHorizontal: 14,
+            height: 44,
+            fontSize: 15,
+            color: "#6B7280",
+            backgroundColor: "#F3F4F6",
+          }}
+        />
+      </View>
+
+      {/* District */}
+      <View style={{ gap: 6 }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: "#9CA3AF",
+            textTransform: "uppercase",
+            letterSpacing: 0.5,
+          }}
+        >
+          Tuman
+        </Text>
+
+        <DistrictSelect
+          districts={districts}
+          selected={selectedDistrict}
+          onSelect={handleDistrictSelect}
+          disabled={saving}
+          hasError={!!districtError}
+        />
+
+        {districtError ? (
+          <Text style={{ fontSize: 12, color: "#EF4444", marginLeft: 2 }}>
+            {districtError}
           </Text>
         ) : null}
       </View>
@@ -283,33 +326,38 @@ function StoreForm({
           Manzil
         </Text>
 
-        <AddressList
-          addresses={addresses}
-          selected={selectedAddress}
-          onSelect={handleAddressSelect}
+        <TextInput
+          value={address}
+          onChangeText={handleAddressChange}
+          placeholder="Mahalla, ko'cha, uy raqami"
+          placeholderTextColor="#9CA3AF"
+          editable={!saving}
+          multiline
+          style={{
+            borderWidth: 1,
+            borderColor: addressError ? "#EF4444" : "#E5E7EB",
+            borderRadius: 10,
+            paddingHorizontal: 14,
+            paddingTop: 12,
+            paddingBottom: 12,
+            minHeight: 44,
+            maxHeight: 100,
+            fontSize: 15,
+            color: "#111827",
+            backgroundColor: "#F9FAFB",
+            textAlignVertical: "top",
+          }}
         />
 
         {addressError ? (
-          <Text
-            style={{
-              fontSize: 12,
-              color: "#EF4444",
-              marginLeft: 2,
-            }}
-          >
+          <Text style={{ fontSize: 12, color: "#EF4444", marginLeft: 2 }}>
             {addressError}
           </Text>
         ) : null}
       </View>
 
       {/* Actions */}
-      <View
-        style={{
-          flexDirection: "row",
-          gap: 8,
-          marginTop: 4,
-        }}
-      >
+      <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
         <TouchableOpacity
           onPress={onCancel}
           disabled={saving}
@@ -324,13 +372,7 @@ function StoreForm({
             opacity: saving ? 0.5 : 1,
           }}
         >
-          <Text
-            style={{
-              fontSize: 14,
-              fontWeight: "500",
-              color: "#374151",
-            }}
-          >
+          <Text style={{ fontSize: 14, fontWeight: "500", color: "#374151" }}>
             Bekor qilish
           </Text>
         </TouchableOpacity>
@@ -350,13 +392,7 @@ function StoreForm({
           {saving ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: "600",
-                color: "#fff",
-              }}
-            >
+            <Text style={{ fontSize: 14, fontWeight: "600", color: "#fff" }}>
               Saqlash
             </Text>
           )}
@@ -400,7 +436,7 @@ function DeleteConfirm({
       <View style={{ flexDirection: "row", gap: 8 }}>
         <TouchableOpacity
           onPress={onCancel}
-          disabled={deleting} // FIX: o'chirish ketayotganda bekor qilishni bloklash
+          disabled={deleting}
           style={{
             flex: 1,
             height: 40,
@@ -452,17 +488,12 @@ export default function StoreScreen() {
 
   const {
     data: stores,
-    isLoading: isStoreLoading,
-    isError: isStoreError,
+    isLoading,
+    isError,
     refetch: refetchStore,
   } = useMarket();
-  const {
-    data: addresses,
-    isLoading: isAddressesLoading,
-    isError: isAddressesError,
-    refetch: refetchAddresses,
-  } = useAddress();
-  const safeAddresses: Address[] = addresses ?? [];
+
+  const safeDistricts: string[] = DISTRICTS;
 
   const { mutate: createStore, isPending: creating } = useCreateMarket();
   const { mutate: updateStore, isPending: updating } = useUpdateMarket();
@@ -470,14 +501,13 @@ export default function StoreScreen() {
 
   const store = stores?.[0];
 
-  const handleCreate = (name: string, address: Address) => {
+  const handleCreate = (name: string, district: string, address: string) => {
     createStore(
       {
         name,
-        region: address.region,
-        district: address.district,
-        address: address.address,
-        address_id: address.id, // FIX: update bilan bir xil shakl — backend buni kutayotgan bo'lishi mumkin
+        region: REGION,
+        district,
+        address,
       } as any,
       {
         onSuccess: () => setViewMode("view"),
@@ -492,7 +522,7 @@ export default function StoreScreen() {
     );
   };
 
-  const handleUpdate = (name: string, address: Address) => {
+  const handleUpdate = (name: string, district: string, address: string) => {
     if (!store?.id) return;
 
     updateStore(
@@ -500,15 +530,13 @@ export default function StoreScreen() {
         id: store.id,
         data: {
           name: name.trim(),
-          region: address.region,
-          district: address.district,
-          address: address.address,
+          region: REGION[0],
+          district,
+          address,
         },
       },
       {
-        onSuccess: () => {
-          setViewMode("view");
-        },
+        onSuccess: () => setViewMode("view"),
         onError: (error: any) => {
           Alert.alert(
             "Xato",
@@ -524,17 +552,14 @@ export default function StoreScreen() {
     if (!store) return;
     deleteStore(store.id, {
       onSuccess: () => setViewMode("view"),
-      onError: (error: any) => {
+      onError: () => {
         Alert.alert("Xato", "O'chirishda xatolik yuz berdi.");
       },
     });
   };
 
-  const initialEditAddress =
-    safeAddresses.find((a: Address) => a.id === store?.address_id) ?? null;
-
-  const isLoading = isStoreLoading || isAddressesLoading;
-  const isError = isStoreError || isAddressesError;
+  const initialEditDistrict =
+    safeDistricts.find((d) => d === store?.district) ?? null;
 
   // --- LOADING holati ---
   if (isLoading) {
@@ -570,12 +595,9 @@ export default function StoreScreen() {
             borderRadius: 12,
             paddingVertical: 12,
             paddingHorizontal: 24,
-            backgroundColor: "#0040B1", // FIX: bu yo'q edi — tugma butunlay ko'rinmas edi
+            backgroundColor: "#0040B1",
           }}
-          onPress={() => {
-            refetchStore?.();
-            refetchAddresses?.();
-          }}
+          onPress={() => refetchStore?.()}
         >
           <Text style={{ color: "#fff", fontSize: 15, fontWeight: "600" }}>
             Qayta urinish
@@ -693,7 +715,6 @@ export default function StoreScreen() {
                     height: 40,
                     borderRadius: 12,
                     backgroundColor: "#EFF6FF",
-                    borderColor: "#E5E7EB",
                     justifyContent: "center",
                     alignItems: "center",
                   }}
@@ -715,7 +736,6 @@ export default function StoreScreen() {
                     flex: 1,
                     height: 40,
                     borderRadius: 12,
-                    borderColor: "#FECACA",
                     backgroundColor: "#FEF2F2",
                     justifyContent: "center",
                     alignItems: "center",
@@ -758,7 +778,7 @@ export default function StoreScreen() {
             >
               <StoreForm
                 title="Do'kon qo'shish"
-                addresses={safeAddresses}
+                districts={safeDistricts}
                 onSave={handleCreate}
                 onCancel={() => setViewMode("view")}
                 saving={creating}
@@ -779,9 +799,10 @@ export default function StoreScreen() {
             >
               <StoreForm
                 title="Do'konni tahrirlash"
-                addresses={safeAddresses}
+                districts={safeDistricts}
                 initialName={store.name}
-                initialAddress={initialEditAddress}
+                initialDistrict={initialEditDistrict}
+                initialAddress={store.address ?? ""}
                 onSave={handleUpdate}
                 onCancel={() => setViewMode("view")}
                 saving={updating}

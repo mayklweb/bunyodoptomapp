@@ -1,4 +1,5 @@
 import { secureStorage } from "@/lib/storage";
+import { useCartStore } from "@/stores/cart.store";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -21,12 +22,20 @@ type AuthState = {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       token: null,
       user: null,
       isHydrated: false,
 
       setAuth: ({ token, user }) => {
+        const previousUserId = get().user?.id;
+
+        // Local cart is not keyed by user. Drop it when the signed-in
+        // identity changes so the next session cannot see another user's items.
+        if (previousUserId != null && previousUserId !== user.id) {
+          useCartStore.getState().clearCart();
+        }
+
         set({
           token,
           user,
@@ -41,6 +50,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearAuth: () => {
+        useCartStore.getState().clearCart();
+
         set({
           token: null,
           user: null,

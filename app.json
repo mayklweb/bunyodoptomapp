@@ -2,7 +2,7 @@
   "expo": {
     "name": "Bunyod Optom",
     "slug": "bunyod-optom-app",
-    "version": "1.1.21",
+    "version": "1.1.24",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "app54",
@@ -57,6 +57,12 @@
         "projectId": "4dd34c7c-cb6d-44b5-9df5-7e7e933af6c3"
       }
     },
-    "owner": "maykl"
+    "owner": "maykl",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4dd34c7c-cb6d-44b5-9df5-7e7e933af6c3"
+    }
   }
 }

@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 
-import { districts } from "@/utils/constants";
+import { DISTRICTS } from "@/utils/constants";
 
 import CheckIcon from "@/components/icons/CheckIcon";
 import EditIcon from "@/components/icons/EditIcon";
@@ -392,7 +392,7 @@ export default function AddressScreen() {
                   {isDistrictOpen && (
                     <View style={styles.dropdown}>
                       <ScrollView nestedScrollEnabled>
-                        {districts.map((d) => (
+                        {DISTRICTS.map((d) => (
                           <TouchableOpacity
                             key={d}
                             style={styles.option}
@@ -550,7 +550,7 @@ export default function AddressScreen() {
                 {isDistrictOpen && (
                   <View style={styles.dropdown}>
                     <ScrollView nestedScrollEnabled>
-                      {districts.map((d) => (
+                      {DISTRICTS.map((d) => (
                         <TouchableOpacity
                           key={d}
                           style={styles.option}
