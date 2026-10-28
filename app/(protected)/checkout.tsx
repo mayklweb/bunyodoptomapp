@@ -12,6 +12,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -28,6 +29,7 @@ import { useProfile } from "@/hooks/user/useProfile";
 
 import type { CheckoutPayload } from "@/services/order.service";
 import { createIdempotencyKey } from "@/utils/idempotency";
+import TruckIcon from "@/components/icons/TruckIcon";
 
 const PRIMARY = "#0040B1";
 const PRIMARY_LIGHT = "#EFF6FF";
@@ -97,6 +99,8 @@ export default function CheckoutScreen() {
   const [paymentMethod, setPaymentMethod] = useState<"cash">("cash");
 
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  const [orderNotes, setOrderNotes] = useState("");
 
   const idempotencyRef = useRef<{ signature: string; key: string } | null>(
     null,
@@ -212,6 +216,7 @@ export default function CheckoutScreen() {
     const payload: CheckoutPayload = {
       market_id: selectedMarketId,
       payment_method: paymentMethod,
+      notes: orderNotes.trim() || undefined,
       idempotency_key: idempotencyRef.current.key,
       products: items,
     };
@@ -460,6 +465,44 @@ export default function CheckoutScreen() {
               );
             })}
           </View>
+        </View>
+
+        {/* Delivery */}
+        <View style={styles.card}>
+          <View style={styles.deliveryRow}>
+            <View style={styles.deliveryIcon}>
+             <TruckIcon/>
+            </View>
+
+            <View style={styles.deliveryContent}>
+              <Text style={styles.cardTitle}>Yetkazib berish</Text>
+              <Text style={styles.deliveryDescription}>
+                Buyurtmangiz 1–2 kun ichida yetkaziladi
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Order notes */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Buyurtma izohi</Text>
+
+          <Text style={styles.cardSubtitle}>
+            Qo‘shimcha ko‘rsatmalar (ixtiyoriy)
+          </Text>
+
+          <TextInput
+            value={orderNotes}
+            onChangeText={setOrderNotes}
+            placeholder="Masalan, yetkazib berish bo‘yicha izoh..."
+            placeholderTextColor="#A1A1AA"
+            multiline
+            maxLength={500}
+            textAlignVertical="top"
+            style={styles.notesInput}
+          />
+
+          <Text style={styles.notesCounter}>{orderNotes.length}/500</Text>
         </View>
 
         {/* Payment */}
@@ -941,6 +984,56 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     color: PRIMARY,
+  },
+
+  deliveryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  deliveryIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 14,
+    backgroundColor: PRIMARY_LIGHT,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  deliveryEmoji: {
+    fontSize: 23,
+  },
+
+  deliveryContent: {
+    flex: 1,
+  },
+
+  deliveryDescription: {
+    marginTop: 5,
+    fontSize: 13,
+    lineHeight: 19,
+    color: "#71717A",
+  },
+
+  notesInput: {
+    minHeight: 100,
+    marginTop: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#E4E7EB",
+    borderRadius: 12,
+    backgroundColor: "#FAFAFA",
+    color: "#18181B",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+
+  notesCounter: {
+    marginTop: 6,
+    fontSize: 11,
+    color: "#8A8F98",
+    textAlign: "right",
   },
 
   /* Payment */

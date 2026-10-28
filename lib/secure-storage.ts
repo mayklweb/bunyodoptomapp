@@ -14,6 +14,7 @@
 //     await AsyncStorage.removeItem(name);
 //   },
 // };
+
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
@@ -52,20 +53,3 @@ export const secureStorage = {
     await SecureStore.deleteItemAsync(key);
   },
 };
-// import * as SecureStore from "expo-secure-store";
-
-// const TOKEN_KEY = "auth_token";
-
-// export const secureStorage = {
-//   getToken: async (): Promise<string | null> => {
-//     return SecureStore.getItemAsync(TOKEN_KEY);
-//   },
-
-//   setToken: async (token: string): Promise<void> => {
-//     await SecureStore.setItemAsync(TOKEN_KEY, token);
-//   },
-
-//   removeToken: async (): Promise<void> => {
-//     await SecureStore.deleteItemAsync(TOKEN_KEY);
-//   },
-// };

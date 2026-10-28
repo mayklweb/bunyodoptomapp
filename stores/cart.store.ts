@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import { ProductsType } from "@/types";
-import { storage } from "@/lib/secure-storage";
+import { secureStorage} from "@/lib/secure-storage";
 
 export interface CartItem extends ProductsType {
   count: number;
@@ -33,6 +33,16 @@ type CartState = {
 
   total: () => number;
   totalCount: () => number;
+
+  updateProductData: (
+    id: CartId,
+    data: {
+      price: number;
+      stock_qty: number;
+      name?: string;
+      images?: CartItem["images"];
+    },
+  ) => void;
 };
 
 export const useCartStore = create<CartState>()(
@@ -167,6 +177,24 @@ export const useCartStore = create<CartState>()(
         }
       },
 
+      updateProductData: (id, data) => {
+        set((state) => ({
+          cart: state.cart.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  price: data.price,
+                  stock_qty: data.stock_qty,
+                  ...(data.name !== undefined && { name: data.name }),
+                  ...(data.images !== undefined && {
+                    images: data.images,
+                  }),
+                }
+              : item,
+          ),
+        }));
+      },
+
       // ─────────────────────────────────────────────
       // REMOVE
       // ─────────────────────────────────────────────
@@ -261,7 +289,7 @@ export const useCartStore = create<CartState>()(
     {
       name: "cart-storage",
 
-      storage: createJSONStorage(() => storage),
+      storage: createJSONStorage(() => secureStorage),
 
       partialize: (state) => ({
         cart: state.cart.map((item) => ({

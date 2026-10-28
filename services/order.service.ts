@@ -25,6 +25,8 @@ export type CheckoutPayload = {
   notes?: string;
   idempotency_key?: string;
   products: OrderProduct[];
+  delivery_date?: string | null;
+  delivery_time?: string | null;
 };
 
 // Backenddan keladigan buyurtma
@@ -78,9 +80,10 @@ export const orderService = {
     const body = {
       market_id: payload.market_id,
       payment_method: payload.payment_method,
-      notes: payload.notes,
+      delivery_date: payload.delivery_date,
+      delivery_time: payload.delivery_time,
+      notes: payload.notes?.trim() || undefined,
       idempotency_key: payload.idempotency_key,
-      // backend faqat id va qty ni o'qiydi
       products: payload.products.map((p) => ({
         id: p.id,
         qty: p.qty ?? p.count ?? 1,
@@ -102,10 +105,7 @@ export const orderService = {
     id: number | string,
     payload: UpdateOrderStatusPayload,
   ): Promise<Order> => {
-    const { data } = await api.put(
-      ENDPOINTS.ORDERS.UPDATE_STATUS(id),
-      payload,
-    );
+    const { data } = await api.put(ENDPOINTS.ORDERS.UPDATE_STATUS(id), payload);
 
     return data.data;
   },
