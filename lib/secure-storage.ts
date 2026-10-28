@@ -14,36 +14,58 @@
 //     await AsyncStorage.removeItem(name);
 //   },
 // };
-
-let AsyncStorage: any;
-
-try {
-  AsyncStorage = require("@react-native-async-storage/async-storage").default;
-} catch {
-  AsyncStorage = {
-    getItem: async () => null,
-    setItem: async () => null,
-    removeItem: async () => null,
-  };
-}
-
+import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 const isServer = Platform.OS === "web" && typeof window === "undefined";
 
-export const storage = {
-  getItem: async (key: string) => {
+export const secureStorage = {
+  getItem: async (key: string): Promise<string | null> => {
     if (isServer) return null;
-    return AsyncStorage.getItem(key);
+
+    if (Platform.OS === "web") {
+      return window.localStorage.getItem(key);
+    }
+
+    return SecureStore.getItemAsync(key);
   },
 
-  setItem: async (key: string, value: string) => {
+  setItem: async (key: string, value: string): Promise<void> => {
     if (isServer) return;
-    return AsyncStorage.setItem(key, value);
+
+    if (Platform.OS === "web") {
+      window.localStorage.setItem(key, value);
+      return;
+    }
+
+    await SecureStore.setItemAsync(key, value);
   },
 
-  removeItem: async (key: string) => {
+  removeItem: async (key: string): Promise<void> => {
     if (isServer) return;
-    return AsyncStorage.removeItem(key);
+
+    if (Platform.OS === "web") {
+      window.localStorage.removeItem(key);
+      return;
+    }
+
+    await SecureStore.deleteItemAsync(key);
   },
 };
+// import * as SecureStore from "expo-secure-store";
+
+// const TOKEN_KEY = "auth_token";
+
+// export const secureStorage = {
+//   getToken: async (): Promise<string | null> => {
+//     return SecureStore.getItemAsync(TOKEN_KEY);
+//   },
+
+//   setToken: async (token: string): Promise<void> => {
+//     await SecureStore.setItemAsync(TOKEN_KEY, token);
+//   },
+
+//   removeToken: async (): Promise<void> => {
+//     await SecureStore.deleteItemAsync(TOKEN_KEY);
+//   },
+// };

@@ -9,8 +9,8 @@ export const useLogout = () => {
 
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
-  const logout = () => {
-    clearAuth();
+  const logout = async () => {
+    await clearAuth();
     useCartStore.getState().clearCart();
     queryClient.clear();
     router.replace("/login");
